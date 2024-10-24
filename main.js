@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const loadCommands = require('./utils/loadCommand'); // Import the loadCommand.js file
+const config = require('./config.json'); // Load configuration
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -46,10 +47,25 @@ app.post('/webhook', async (req, res) => {
                 const senderId = webhookEvent.sender.id;
                 const receivedText = webhookEvent.message.text;
 
-                // Iterate over all loaded commands and execute them
+                // Iterate through all commands to find one that matches
                 for (const commandName in commands) {
                     const command = commands[commandName];
-                    await command.execute(senderId, receivedText);
+
+                    // If the command requires a prefix
+                    if (command.prefixRequires) {
+                        if (receivedText.startsWith(config.prefix)) {
+                            const inputCommand = receivedText.slice(config.prefix.length).split(' ')[0];
+                            if (inputCommand === command.name) {
+                                await command.execute(senderId, receivedText);
+                            }
+                        }
+                    } else {
+                        // If no prefix is required, simply match the command name
+                        const inputCommand = receivedText.split(' ')[0];
+                        if (inputCommand === command.name) {
+                            await command.execute(senderId, receivedText);
+                        }
+                    }
                 }
             }
         });
@@ -59,11 +75,12 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
-// Serve index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
+    const commands = loadCommands();
+    console.log('Server is listening on port', PORT);
+    console.log('Available commands:', Object.keys(commands).join(', ')); // Log available commands
 });
