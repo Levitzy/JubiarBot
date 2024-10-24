@@ -2,59 +2,58 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 const loadCommands = require('./utils/loadCommand'); // Import loadCommand.js
 const getWebhook = require('./utils/getWebhook');    // Import getWebhook.js
 const postWebhook = require('./utils/postWebhook');  // Import postWebhook.js
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// PageBot Name
-const PageBotName = 'Jubiar PageBot';
-
-// Read token.txt for PAGE_ACCESS_TOKEN
-let pageAccessTokenStatus = 'Bad';
-let PAGE_ACCESS_TOKEN = '';
-
-try {
-    PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, 'token.txt'), 'utf8').trim();
-    pageAccessTokenStatus = 'Good';
-} catch (error) {
-    console.error('Error reading PAGE_ACCESS_TOKEN:', error.message);
-    pageAccessTokenStatus = 'Bad';
-}
-
-// Read the verification token
+// Bot settings
 const VERIFY_TOKEN = 'jubiar'; // Replace with your own verification token
+const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, 'token.txt'), 'utf8').trim();
+const BOT_NAME = 'JubiarBot';  // Bot name
 
 app.use(bodyParser.json());
+
+// Check the Page Access Token status
+async function checkPageAccessToken() {
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v21.0/me?access_token=${PAGE_ACCESS_TOKEN}`);
+        return response.data ? 'Good' : 'Bad';
+    } catch (error) {
+        return 'Bad';
+    }
+}
 
 // Use the separated routes for GET and POST webhooks
 getWebhook(app, VERIFY_TOKEN);
 
-// Serve index.html and pass in the total number of commands
-app.get('/', (req, res) => {
-    const { commands } = loadCommands(PORT); // Load the commands to count them
-    const totalCommands = Object.keys(commands).length;
-});
-
-// Serve total commands as JSON for the static index.html
-app.get('/api/totalCommands', (req, res) => {
+// Serve dynamically injected index.html
+app.get('/', async (req, res) => {
+    const accessTokenStatus = await checkPageAccessToken();
     const { commands } = loadCommands(PORT);
-    res.json({ totalCommands: Object.keys(commands).length });
-});
+    const commandNames = Object.keys(commands);
+    
+    // Read and inject data into index.html
+    fs.readFile(path.join(__dirname, 'index.html'), 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).send('Error reading the file.');
+        }
 
+        // Replace placeholders with dynamic content
+        let html = data
+            .replace('{Namebot}', BOT_NAME)
+            .replace('{Good or bad}', accessTokenStatus)
+            .replace('{command.length}', commandNames.length);
+
+        res.send(html);  // Send the injected HTML
+    });
+});
 
 // Start the server and load commands when the server starts
-app.listen(PORT, () => {
-    const { commands } = loadCommands(PORT); // Load the commands
-    postWebhook(app, commands); // Set up postWebhook after loading commands
-
+app.listen(PORT, async () => {
     console.clear(); // Clear the console for a clean start
-    console.log(`===========================`);
-    console.log(`   ${PageBotName} is Online   `);
-    console.log(`===========================`);
-    console.log(`Server is listening on port ${PORT}`);
-    console.log(`PageBot Name: ${PageBotName}`);
-    console.log(`Page Access Token Status: ${pageAccessTokenStatus}`);
-    console.log(`===========================`);
+    const { commands } = loadCommands(PORT);
+    postWebhook(app, commands);
 });
