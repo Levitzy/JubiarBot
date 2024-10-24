@@ -10,12 +10,28 @@ const PORT = process.env.PORT || 3000;
 const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, 'token.txt'), 'utf8').trim();
 
 // Verification Token
-const VERIFY_TOKEN = 'jubiar'; // Replace with your own verification token
+const VERIFY_TOKEN = 'YOUR_VERIFY_TOKEN'; // Replace with your own verification token
 
 app.use(bodyParser.json());
 
-// Load commands and config
-const { commands, config } = loadCommands();
+// Webhook verification
+app.get('/webhook', (req, res) => {
+    let mode = req.query['hub.mode'];
+    let token = req.query['hub.verify_token'];
+    let challenge = req.query['hub.challenge'];
+
+    if (mode && token) {
+        if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+            console.log('WEBHOOK_VERIFIED');
+            res.status(200).send(challenge);
+        } else {
+            res.sendStatus(403);
+        }
+    }
+});
+
+// Load commands
+const { commands } = loadCommands();
 
 // Handle incoming webhook events
 app.post('/webhook', async (req, res) => {
@@ -34,7 +50,7 @@ app.post('/webhook', async (req, res) => {
                 // Iterate over all loaded commands and execute them
                 for (const commandName in commands) {
                     const command = commands[commandName];
-                    await command.execute(senderId, receivedText, config.prefix);
+                    await command.execute(senderId, receivedText);
                 }
             }
         });
@@ -49,7 +65,16 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Start the server and log the deployed commands
 app.listen(PORT, () => {
+    console.clear(); // Clear the console for a clean start
+    console.log(`===========================`);
+    console.log(`   Facebook Bot Page is Online   `);
+    console.log(`===========================`);
     console.log(`Server is listening on port ${PORT}`);
-    console.log(`Loaded commands: ${Object.keys(commands).join(', ')}`);
+    console.log(`---------------------------`);
+    console.log(`Deployed Commands:`);
+    console.log(`---------------------------`);
+    console.log(`${Object.keys(commands).join(', ')}`);
+    console.log(`===========================`);
 });
