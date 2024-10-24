@@ -1,9 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
+// Load configuration from config.json
+const config = require('../config.json');
+
 module.exports = function loadCommands() {
     const commands = {};
-    const cmdPath = path.join(__dirname, '../cmd'); // Adjusted to look up one folder from utils/
+    const cmdPath = path.join(__dirname, '../cmd');
     const commandFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.js'));
 
     console.log('Deploying commands...');
@@ -15,5 +18,5 @@ module.exports = function loadCommands() {
     }
 
     console.log('All commands have been successfully deployed!');
-    return commands;
+    return { commands, config };
 };

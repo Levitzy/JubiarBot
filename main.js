@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const loadCommands = require('./utils/loadCommand'); // Import the loadCommand.js file
-const config = require('./config.json'); // Load configuration
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -23,7 +22,7 @@ app.get('/webhook', (req, res) => {
 
     if (mode && token) {
         if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-            console.log('WEBHOOK_VERIFIED');
+            console.log('JUBIAR API WEBHOOK_VERIFIED');
             res.status(200).send(challenge);
         } else {
             res.sendStatus(403);      
@@ -31,13 +30,14 @@ app.get('/webhook', (req, res) => {
     }
 });
 
+// Load commands and config
+const { commands, config } = loadCommands();
+
 // Handle incoming webhook events
 app.post('/webhook', async (req, res) => {
     let body = req.body;
 
     if (body.object === 'page') {
-        const commands = loadCommands();  // Load all commands
-
         body.entry.forEach(async function(entry) {
             let webhookEvent = entry.messaging[0];
             console.log(webhookEvent);
@@ -47,25 +47,10 @@ app.post('/webhook', async (req, res) => {
                 const senderId = webhookEvent.sender.id;
                 const receivedText = webhookEvent.message.text;
 
-                // Iterate through all commands to find one that matches
+                // Iterate over all loaded commands and execute them
                 for (const commandName in commands) {
                     const command = commands[commandName];
-
-                    // If the command requires a prefix
-                    if (command.prefixRequires) {
-                        if (receivedText.startsWith(config.prefix)) {
-                            const inputCommand = receivedText.slice(config.prefix.length).split(' ')[0];
-                            if (inputCommand === command.name) {
-                                await command.execute(senderId, receivedText);
-                            }
-                        }
-                    } else {
-                        // If no prefix is required, simply match the command name
-                        const inputCommand = receivedText.split(' ')[0];
-                        if (inputCommand === command.name) {
-                            await command.execute(senderId, receivedText);
-                        }
-                    }
+                    await command.execute(senderId, receivedText, config.prefix);
                 }
             }
         });
@@ -75,12 +60,12 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
+// Serve index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
-    const commands = loadCommands();
-    console.log('Server is listening on port', PORT);
-    console.log('Available commands:', Object.keys(commands).join(', ')); // Log available commands
+    console.log(`Server is listening on port ${PORT}`);
+    console.log(`Loaded commands: ${Object.keys(commands).join(', ')}`);
 });

@@ -1,12 +1,15 @@
 const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
-    name: 'bye',
-    description: 'A command to say goodbye to the user.',
-    prefixRequires: false,  // This command does not require the prefix
+    name: 'test',
+    description: 'A test command to verify functionality.',
+    prefixRequires: false, // This command does not require a prefix
 
     async execute(senderId, messageText) {
-        const responseMessage = `Goodbye! You said: ${messageText}`;
-        await api.sendMessage(senderId, responseMessage);
+        // If prefix is not required, the user can directly call the command
+        if (messageText.trim() === this.name) {
+            const responseMessage = `This is a test command. You said: ${messageText}`;
+            await api.sendMessage(senderId, responseMessage);
+        }
     }
 };
