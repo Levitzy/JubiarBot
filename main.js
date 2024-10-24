@@ -26,8 +26,8 @@ async function checkPageAccessToken() {
     }
 }
 
-// Use the separated routes for GET and POST webhooks
-getWebhook(app, VERIFY_TOKEN);
+// Serve static files from the 'site' folder
+app.use(express.static(path.join(__dirname, 'site')));
 
 // Serve dynamically injected index.html
 app.get('/', async (req, res) => {
@@ -36,7 +36,7 @@ app.get('/', async (req, res) => {
     const commandNames = Object.keys(commands);
     
     // Read and inject data into index.html
-    fs.readFile(path.join(__dirname, 'index.html'), 'utf8', (err, data) => {
+    fs.readFile(path.join(__dirname, 'site/index.html'), 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('Error reading the file.');
         }
