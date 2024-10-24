@@ -26,10 +26,18 @@ async function checkPageAccessToken() {
     }
 }
 
+// Initialize a variable to store loaded commands
+let commands;
+
 // New API endpoint to fetch bot information
 app.get('/api/info', async (req, res) => {
     const accessTokenStatus = await checkPageAccessToken();
-    const { commands } = loadCommands(PORT);
+
+    // Ensure commands are loaded before responding
+    if (!commands) {
+        commands = loadCommands(PORT);
+    }
+
     const commandNames = Object.keys(commands);
 
     res.json({
@@ -48,6 +56,6 @@ app.use(express.static(path.join(__dirname, 'site')));
 // Start the server and load commands when the server starts
 app.listen(PORT, async () => {
     console.clear(); // Clear the console for a clean start
-    const { commands } = loadCommands(PORT);
-    postWebhook(app, commands);
+    commands = loadCommands(PORT); // Load commands only once at server start
+    postWebhook(app, commands);    // Use the loaded commands in the POST webhook
 });
