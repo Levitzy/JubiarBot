@@ -35,23 +35,6 @@ getWebhook(app, VERIFY_TOKEN);
 app.get('/', (req, res) => {
     const { commands } = loadCommands(PORT); // Load the commands to count them
     const totalCommands = Object.keys(commands).length;
-
-    // Inject the total commands into the HTML
-    res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${PageBotName}</title>
-    </head>
-    <body>
-        <h1>Welcome to ${PageBotName}</h1>
-        <p>This bot is connected to Facebook Messenger and is ready to serve commands.</p>
-        <p>Total Commands: ${totalCommands}</p>
-    </body>
-    </html>
-    `);
 });
 
 // Serve total commands as JSON for the static index.html
