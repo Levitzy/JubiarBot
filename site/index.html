@@ -4,38 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jubiar PageBot</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
-            text-align: center;
-            padding: 50px;
-        }
-        h1 {
-            color: #2c3e50;
-        }
-        p {
-            font-size: 18px;
-        }
-        .status {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #e74c3c;
-            color: #fff;
-            display: inline-block;
-        }
-        .status.good {
-            background-color: #2ecc71;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Welcome to Jubiar PageBot</h1>
     <p>This bot is connected to Facebook Messenger and is ready to serve commands.</p>
-    <p>Pagebot Name: <strong>{Namebot}</strong></p>
-    <p>Page Access Token Status: <strong>{Good or bad}</strong></p>
-    <p>Total Commands: <strong>{command.length}</strong></p>
+    
+    <p>Pagebot Name: <strong id="botName">Loading...</strong></p>
+    <p>Page Access Token Status: <strong id="accessTokenStatus">Loading...</strong></p>
+    <p>Total Commands: <strong id="totalCommands">Loading...</strong></p>
+    
+    <script src="script.js"></script>
 </body>
 </html>

@@ -19,37 +19,31 @@ app.use(bodyParser.json());
 // Check the Page Access Token status
 async function checkPageAccessToken() {
     try {
-        const response = await axios.get(`https://graph.facebook.com/v21.0/me?access_token=${PAGE_ACCESS_TOKEN}`);
+        const response = await axios.get(`https://graph.facebook.com/v10.0/me?access_token=${PAGE_ACCESS_TOKEN}`);
         return response.data ? 'Good' : 'Bad';
     } catch (error) {
         return 'Bad';
     }
 }
 
-// Serve static files from the 'site' folder
-app.use(express.static(path.join(__dirname, 'site')));
-
-// Serve dynamically injected index.html
-app.get('/', async (req, res) => {
+// New API endpoint to fetch bot information
+app.get('/api/info', async (req, res) => {
     const accessTokenStatus = await checkPageAccessToken();
     const { commands } = loadCommands(PORT);
     const commandNames = Object.keys(commands);
-    
-    // Read and inject data into index.html
-    fs.readFile(path.join(__dirname, 'site/index.html'), 'utf8', (err, data) => {
-        if (err) {
-            return res.status(500).send('Error reading the file.');
-        }
 
-        // Replace placeholders with dynamic content
-        let html = data
-            .replace('{Namebot}', BOT_NAME)
-            .replace('{Good or bad}', accessTokenStatus)
-            .replace('{command.length}', commandNames.length);
-
-        res.send(html);  // Send the injected HTML
+    res.json({
+        botName: BOT_NAME,
+        accessTokenStatus: accessTokenStatus,
+        totalCommands: commandNames.length,
     });
 });
+
+// Use the separated routes for GET and POST webhooks
+getWebhook(app, VERIFY_TOKEN);
+
+// Serve static files from the 'site' folder
+app.use(express.static(path.join(__dirname, 'site')));
 
 // Start the server and load commands when the server starts
 app.listen(PORT, async () => {
