@@ -1,4 +1,5 @@
 const api = require('../jubiar-pagebot-api/sendmessage');
+const sendPrefixMessage = require('../utils/prefixAuto'); // Import the prefixAuto utility
 
 module.exports = {
     name: 'hi',
@@ -7,8 +8,12 @@ module.exports = {
 
     async execute(senderId, messageText, prefix) {
         // Check if prefix is required and if the message starts with the prefix
-        if (this.prefixRequires && !messageText.startsWith(prefix)) {
-            return; // If prefix is required and not present, do nothing
+        if (this.prefixRequires) {
+            if (!messageText.startsWith(prefix)) {
+                // If the wrong prefix is provided, use the prefixAuto.js utility to send the correct prefix
+                await sendPrefixMessage(senderId, this, prefix);
+                return;
+            }
         }
 
         const commandWithoutPrefix = messageText.replace(prefix, '').trim();

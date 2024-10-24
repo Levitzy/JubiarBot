@@ -14,22 +14,6 @@ const VERIFY_TOKEN = 'jubiar'; // Replace with your own verification token
 
 app.use(bodyParser.json());
 
-// Webhook verification
-app.get('/webhook', (req, res) => {
-    let mode = req.query['hub.mode'];
-    let token = req.query['hub.verify_token'];
-    let challenge = req.query['hub.challenge'];
-
-    if (mode && token) {
-        if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-            console.log('JUBIAR API WEBHOOK_VERIFIED');
-            res.status(200).send(challenge);
-        } else {
-            res.sendStatus(403);      
-        }
-    }
-});
-
 // Load commands and config
 const { commands, config } = loadCommands();
 
