@@ -8,5 +8,15 @@
 <body>
     <h1>Welcome to Jubiar PageBot</h1>
     <p>This bot is connected to Facebook Messenger and is ready to serve commands.</p>
+    <p id="totalCommands">Total Commands: </p>
+
+    <script>
+        // Fetch the total commands from the server and inject it into the page
+        fetch('/api/totalCommands')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('totalCommands').textContent = `Total Commands: ${data.totalCommands}`;
+            });
+    </script>
 </body>
 </html>
