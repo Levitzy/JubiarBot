@@ -1,0 +1,22 @@
+{
+  "name": "jubiar-pagebot",
+  "version": "1.0.0",
+  "description": "A Facebook Messenger bot with a command structure.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "axios": "latest",
+    "body-parser": "latest",
+    "express": "latest"
+  },
+  "keywords": [
+    "facebook",
+    "messenger",
+    "bot",
+    "express"
+  ],
+  "author": "Jubiar",
+  "license": "MIT"
+}
