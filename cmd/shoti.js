@@ -63,7 +63,7 @@ module.exports = {
                 } else {
                     // If no video is found, send an error message
                     const errorMessage = {
-                        text: 'Sorry, no video was found.'
+                        text: Buffer.from('Sorry, no video was found.', 'utf-8').toString()
                     };
                     await api.sendMessage(senderId, { recipient: { id: senderId }, message: errorMessage });
                 }
@@ -73,7 +73,7 @@ module.exports = {
             console.error('Error fetching, downloading, or sending the video:', error);
 
             const errorMessage = {
-                text: 'An error occurred while fetching the video. Please try again later.'
+                text: Buffer.from('An error occurred while fetching the video. Please try again later.', 'utf-8').toString()
             };
             await api.sendMessage(senderId, { recipient: { id: senderId }, message: errorMessage });
         }
