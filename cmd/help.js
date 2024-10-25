@@ -26,11 +26,6 @@ module.exports = {
                 }
             };
 
-            // Ensure responseMessage is correctly formatted before sending
-            if (!responseMessage.attachment.payload.buttons.length) {
-                throw new Error("Button configuration is missing in responseMessage.");
-            }
-
             // Send the initial help message
             await api.sendMessage(senderId, responseMessage);
         } catch (error) {
@@ -39,7 +34,6 @@ module.exports = {
         }
     },
 
-    // Handle the payload for 'See All Commands'
     async handlePostback(senderId, payload) {
         if (payload === 'SEE_ALL_COMMANDS_PAYLOAD') {
             try {
@@ -49,14 +43,14 @@ module.exports = {
 
                 // Check if there are command files to load
                 if (commandFiles.length === 0) {
-                    throw new Error("No command files found in cmd folder.");
+                    await api.sendMessage(senderId, { text: "No commands are available at the moment." });
+                    return;
                 }
 
                 // Collect command names and descriptions
                 let commandsList = 'Here are all available commands:\n\n';
                 for (const file of commandFiles) {
                     const command = require(path.join(commandsPath, file));
-                    // Ensure command has necessary properties
                     if (command.name && command.description) {
                         commandsList += `• ${command.name}: ${command.description}\n`;
                     } else {
@@ -64,8 +58,13 @@ module.exports = {
                     }
                 }
 
-                // Send the list of commands
-                await api.sendMessage(senderId, { text: commandsList });
+                // Send the list in chunks if it exceeds the character limit
+                const MAX_LENGTH = 2000; // Typical character limit for a single message
+                const chunks = commandsList.match(new RegExp(`.{1,${MAX_LENGTH}}`, 'g'));
+
+                for (const chunk of chunks) {
+                    await api.sendMessage(senderId, { text: chunk });
+                }
             } catch (error) {
                 console.error("Error in handlePostback function:", error.message);
                 await api.sendMessage(senderId, { text: "An error occurred while retrieving commands." });
