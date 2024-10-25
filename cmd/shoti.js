@@ -46,15 +46,17 @@ module.exports = {
                             payload: {
                                 is_reusable: true
                             }
-                        },
-                        file: {
-                            type: 'video',
-                            path: tempFilePath
                         }
                     };
 
                     // Send the video file as an attachment using api.sendMessage
-                    await api.sendMessage(senderId, responseMessage);
+                    await api.sendMessage(senderId, {
+                        recipient: {
+                            id: senderId
+                        },
+                        message: responseMessage,
+                        filedata: fs.createReadStream(tempFilePath)
+                    });
 
                     // Clean up: remove the temporary file after sending
                     fs.unlinkSync(tempFilePath);
@@ -63,7 +65,7 @@ module.exports = {
                     const errorMessage = {
                         text: 'Sorry, no video was found.'
                     };
-                    await api.sendMessage(senderId, errorMessage);
+                    await api.sendMessage(senderId, { recipient: { id: senderId }, message: errorMessage });
                 }
             }
         } catch (error) {
@@ -73,7 +75,7 @@ module.exports = {
             const errorMessage = {
                 text: 'An error occurred while fetching the video. Please try again later.'
             };
-            await api.sendMessage(senderId, errorMessage);
+            await api.sendMessage(senderId, { recipient: { id: senderId }, message: errorMessage });
         }
     }
 };
