@@ -1,12 +1,13 @@
-const handleSeeAllCommandsPostback = require('./payload/seeAllCommandsPostback');
+const handleSeeAllCommandsPostback = require('./payload/seeAllCommandsPayload');
 const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports.handlePostback = async (senderId, payload, commandName = '') => {
     try {
         console.log(`Handling postback with payload: ${payload}`);
 
+        // Only trigger SEE_ALL_COMMANDS_PAYLOAD when the commandName is 'help'
         if (payload === 'SEE_ALL_COMMANDS_PAYLOAD' && commandName === 'help') {
-            await handleSeeAllCommandsPostback(senderId, commandName);
+            await handleSeeAllCommandsPostback(senderId);
             return;
         }
 
