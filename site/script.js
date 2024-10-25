@@ -38,10 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const commandList = document.getElementById('commandList');
         commandList.innerHTML = '';
         commands.forEach(command => {
-            const li = document.createElement('li');
-            li.className = 'command-item';
-            li.innerHTML = `<span>${command}</span>`;
-            commandList.appendChild(li);
+            const div = document.createElement('div');
+            div.className = 'command-item';
+            div.innerHTML = `<span>${command}</span>`;
+            commandList.appendChild(div);
         });
     }
 
