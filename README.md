@@ -1,212 +1,229 @@
----
+To make it easy to create new commands with various message types—text, video, image, button, and more—I'll outline a standardized command structure for adding different message types. This structure will ensure compatibility with your `sendmessage.js` setup and provide flexibility for different message types. I'll also explain each part.
 
-### Command Structure for `api.sendMessage` with Buttons
+### Command Structure Template
 
-This template includes all the necessary details for creating a new command using `api.sendMessage` and incorporating buttons in the response.
-
----
-
-### 1. **Command Name**  
-The unique name of the command that will trigger the functionality.
-
-**Example:**  
-`test`
-
----
-
-### 2. **Command Description**  
-A brief explanation of the purpose of the command.
-
-**Example:**  
-A test command to verify if the bot is functioning correctly and demonstrate how to use buttons in a message.
-
----
-
-### 3. **Input Parameters**  
-A list of inputs or arguments the command takes, including types and descriptions.
-
-**Example:**  
-- `senderId` (String): The unique ID of the user sending the message.
-- `messageText` (String): The text message sent by the user that triggers the command.
-
----
-
-### 4. **Command Code Example with Buttons**  
-Here’s an example of how the command can be implemented, including buttons in the response.
+Below is the template for creating a new command file in the `cmd/` folder. Each command file exports a module with essential properties (`name`, `description`, and `execute` function) and supports various message types by setting the `message` object.
 
 ```javascript
 const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
-    name: 'test',  // The name of the command
-    description: 'A test command to verify functionality with buttons.',
+    name: 'example',  // Command name, e.g., "hi", "bye", "sendimage"
+    description: 'Example command demonstrating text, video, image, and button options.',
 
     async execute(senderId, messageText) {
-        // Check if the message text matches the command name
-        if (messageText.trim() === this.name) {
-            const responseMessage = {
-                text: "This is a test command. Choose an option:",
-                buttons: [
+        // Determine the type of message to send based on the command or messageText
+
+        let responseMessage;
+
+        // Text message
+        if (messageText.includes('text')) {
+            responseMessage = {
+                text: 'Hello! This is a text message example.'
+            };
+
+        // Image message
+        } else if (messageText.includes('image')) {
+            responseMessage = {
+                attachment: {
+                    type: 'image',
+                    payload: {
+                        url: 'https://example.com/image.jpg',  // Replace with a valid image URL
+                        is_reusable: true  // This allows Facebook to cache the image
+                    }
+                }
+            };
+
+        // Video message
+        } else if (messageText.includes('video')) {
+            responseMessage = {
+                attachment: {
+                    type: 'video',
+                    payload: {
+                        url: 'https://example.com/video.mp4',  // Replace with a valid video URL
+                        is_reusable: true
+                    }
+                }
+            };
+
+        // Button message
+        } else if (messageText.includes('button')) {
+            responseMessage = {
+                attachment: {
+                    type: 'template',
+                    payload: {
+                        template_type: 'button',
+                        text: 'Choose an option:',
+                        buttons: [
+                            {
+                                type: 'web_url',
+                                url: 'https://example.com',
+                                title: 'Visit Website'
+                            },
+                            {
+                                type: 'postback',
+                                title: 'Get Started',
+                                payload: 'GET_STARTED_PAYLOAD'
+                            }
+                        ]
+                    }
+                }
+            };
+
+        // Generic Template Message (e.g., for a product or service card)
+        } else if (messageText.includes('generic')) {
+            responseMessage = {
+                attachment: {
+                    type: 'template',
+                    payload: {
+                        template_type: 'generic',
+                        elements: [
+                            {
+                                title: 'Sample Item',
+                                image_url: 'https://example.com/image.jpg',
+                                subtitle: 'Item description',
+                                default_action: {
+                                    type: 'web_url',
+                                    url: 'https://example.com',
+                                    webview_height_ratio: 'tall'
+                                },
+                                buttons: [
+                                    {
+                                        type: 'web_url',
+                                        url: 'https://example.com',
+                                        title: 'View'
+                                    },
+                                    {
+                                        type: 'postback',
+                                        title: 'Buy Now',
+                                        payload: 'BUY_NOW_PAYLOAD'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            };
+
+        // Quick Replies
+        } else if (messageText.includes('quick')) {
+            responseMessage = {
+                text: 'Choose an option:',
+                quick_replies: [
                     {
-                        type: "postback",
-                        title: "Option 1",
-                        payload: "OPTION_1_PAYLOAD"
+                        content_type: 'text',
+                        title: 'Option 1',
+                        payload: 'OPTION_1_PAYLOAD'
                     },
                     {
-                        type: "postback",
-                        title: "Option 2",
-                        payload: "OPTION_2_PAYLOAD"
-                    },
-                    {
-                        type: "postback",
-                        title: "Option 3",
-                        payload: "OPTION_3_PAYLOAD"
+                        content_type: 'text',
+                        title: 'Option 2',
+                        payload: 'OPTION_2_PAYLOAD'
                     }
                 ]
             };
 
-            // Send the message with buttons using api.sendMessage
-            await api.sendMessage(senderId, responseMessage);
+        } else {
+            responseMessage = { text: "I'm not sure what you meant. Try 'text', 'video', 'image', 'button', etc." };
         }
+
+        // Send the prepared message
+        await api.sendMessage(senderId, responseMessage);
     }
 };
 ```
 
----
+### Explanation of Each Message Type
 
-### 5. **Type Definitions**  
-Define the types of each input parameter and the response structure.
+1. **Text Message**:
+   - Simple text message sent to the user.
+   - Example: `{ text: "Hello! This is a text message example." }`
 
-- **`senderId` (String)**: Represents the ID of the user, typically passed as a string.
-- **`messageText` (String)**: The text content from the user’s message.
-- **`buttons` (Array)**: An array of button objects, each containing a title and payload.
+2. **Image Message**:
+   - Sends an image with a direct URL.
+   - Example:
+     ```javascript
+     {
+         attachment: {
+             type: 'image',
+             payload: { url: 'https://example.com/image.jpg', is_reusable: true }
+         }
+     }
+     ```
 
----
+3. **Video Message**:
+   - Sends a video with a direct URL.
+   - Example:
+     ```javascript
+     {
+         attachment: {
+             type: 'video',
+             payload: { url: 'https://example.com/video.mp4', is_reusable: true }
+         }
+     }
+     ```
 
-### 6. **Example Usage**  
-Describe how the command is used within a chat interface and what the buttons will do.
+4. **Button Message**:
+   - Sends a message with buttons (web URL and postback).
+   - Example:
+     ```javascript
+     {
+         attachment: {
+             type: 'template',
+             payload: {
+                 template_type: 'button',
+                 text: 'Choose an option:',
+                 buttons: [
+                     { type: 'web_url', url: 'https://example.com', title: 'Visit Website' },
+                     { type: 'postback', title: 'Get Started', payload: 'GET_STARTED_PAYLOAD' }
+                 ]
+             }
+         }
+     }
+     ```
 
-**Example:**  
-If the user types `test`, the bot will respond with a message and three buttons:
-1. **Option 1** – Sends payload `OPTION_1_PAYLOAD`.
-2. **Option 2** – Sends payload `OPTION_2_PAYLOAD`.
-3. **Option 3** – Sends payload `OPTION_3_PAYLOAD`.
+5. **Generic Template Message**:
+   - Sends a carousel-style template, often used for product or service cards.
+   - Example:
+     ```javascript
+     {
+         attachment: {
+             type: 'template',
+             payload: {
+                 template_type: 'generic',
+                 elements: [
+                     {
+                         title: 'Sample Item',
+                         image_url: 'https://example.com/image.jpg',
+                         subtitle: 'Item description',
+                         default_action: { type: 'web_url', url: 'https://example.com', webview_height_ratio: 'tall' },
+                         buttons: [
+                             { type: 'web_url', url: 'https://example.com', title: 'View' },
+                             { type: 'postback', title: 'Buy Now', payload: 'BUY_NOW_PAYLOAD' }
+                         ]
+                     }
+                 ]
+             }
+         }
+     }
+     ```
 
----
+6. **Quick Replies**:
+   - Provides interactive options for users to choose from.
+   - Example:
+     ```javascript
+     {
+         text: 'Choose an option:',
+         quick_replies: [
+             { content_type: 'text', title: 'Option 1', payload: 'OPTION_1_PAYLOAD' },
+             { content_type: 'text', title: 'Option 2', payload: 'OPTION_2_PAYLOAD' }
+         ]
+     }
+     ```
 
-### 7. **Response Format**  
-Describe the format of the message being sent back, including the button structure.
+### Usage Notes:
+- **Add Commands in the `cmd/` Folder**: Place each new command file in the `cmd/` folder, following this structure.
+- **Configure `messageText` Conditions**: Adjust the `messageText.includes('keyword')` conditions in the `execute` function to respond to different keywords (like 'text', 'video', 'image', etc.).
+- **Payloads and URLs**: Replace example URLs and payloads with real values relevant to your application.
 
-**Example Response:**
-```json
-{
-  "recipient": {
-    "id": "USER_ID"
-  },
-  "message": {
-    "text": "This is a test command. Choose an option:",
-    "buttons": [
-      {
-        "type": "postback",
-        "title": "Option 1",
-        "payload": "OPTION_1_PAYLOAD"
-      },
-      {
-        "type": "postback",
-        "title": "Option 2",
-        "payload": "OPTION_2_PAYLOAD"
-      },
-      {
-        "type": "postback",
-        "title": "Option 3",
-        "payload": "OPTION_3_PAYLOAD"
-      }
-    ]
-  }
-}
-```
-
----
-
-### 8. **Error Handling**  
-Outline how errors or invalid inputs are handled within the command, including the case where buttons fail to render.
-
-**Example:**
-```javascript
-module.exports = {
-    name: 'test',
-    description: 'A test command to verify functionality with buttons.',
-
-    async execute(senderId, messageText) {
-        try {
-            if (messageText.trim() === this.name) {
-                const responseMessage = {
-                    text: "This is a test command. Choose an option:",
-                    buttons: [
-                        {
-                            type: "postback",
-                            title: "Option 1",
-                            payload: "OPTION_1_PAYLOAD"
-                        },
-                        {
-                            type: "postback",
-                            title: "Option 2",
-                            payload: "OPTION_2_PAYLOAD"
-                        },
-                        {
-                            type: "postback",
-                            title: "Option 3",
-                            payload: "OPTION_3_PAYLOAD"
-                        }
-                    ]
-                };
-                await api.sendMessage(senderId, responseMessage);
-            }
-        } catch (error) {
-            console.error('Error executing the command with buttons:', error);
-        }
-    }
-};
-```
-
----
-
-### 9. **Additional Features**  
-Mention any additional features, such as sending quick replies, images, or handling different types of messages, if applicable.
-
-**Example:**  
-You can combine buttons with images or quick replies in the same message:
-
-```javascript
-const responseMessage = {
-    text: "Choose an option:",
-    buttons: [
-        {
-            type: "postback",
-            title: "Option 1",
-            payload: "OPTION_1_PAYLOAD"
-        },
-        {
-            type: "postback",
-            title: "Option 2",
-            payload: "OPTION_2_PAYLOAD"
-        }
-    ],
-    quick_replies: [
-        {
-            content_type: "text",
-            title: "Quick Reply 1",
-            payload: "QUICK_REPLY_1_PAYLOAD"
-        },
-        {
-            content_type: "text",
-            title: "Quick Reply 2",
-            payload: "QUICK_REPLY_2_PAYLOAD"
-        }
-    ]
-};
-```
-
----
-
-This updated template with buttons will help you create new commands using `api.sendMessage` with more interactive and dynamic responses. Let me know if you need any further adjustments!
+This standardized structure allows you to easily create commands with varied content, making it versatile for different scenarios. Let me know if you’d like further customization on this structure!
