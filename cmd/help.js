@@ -34,9 +34,12 @@ module.exports = {
         }
     },
 
+    // Function to handle the 'See All Commands' button postback
     async handlePostback(senderId, payload) {
-        if (payload === 'SEE_ALL_COMMANDS_PAYLOAD') {
-            try {
+        try {
+            if (payload === 'SEE_ALL_COMMANDS_PAYLOAD') {
+                console.log("Handling postback for SEE_ALL_COMMANDS_PAYLOAD");
+
                 // Read all command files from the 'cmd' directory
                 const commandsPath = path.join(__dirname, 'cmd');
                 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -59,16 +62,16 @@ module.exports = {
                 }
 
                 // Send the list in chunks if it exceeds the character limit
-                const MAX_LENGTH = 2000; // Typical character limit for a single message
+                const MAX_LENGTH = 2000;
                 const chunks = commandsList.match(new RegExp(`.{1,${MAX_LENGTH}}`, 'g'));
 
                 for (const chunk of chunks) {
                     await api.sendMessage(senderId, { text: chunk });
                 }
-            } catch (error) {
-                console.error("Error in handlePostback function:", error.message);
-                await api.sendMessage(senderId, { text: "An error occurred while retrieving commands." });
             }
+        } catch (error) {
+            console.error("Error in handlePostback function:", error.message);
+            await api.sendMessage(senderId, { text: "An error occurred while retrieving commands." });
         }
     }
 };
