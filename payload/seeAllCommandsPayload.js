@@ -2,8 +2,16 @@ const path = require('path');
 const fs = require('fs');
 const api = require('../../jubiar-pagebot-api/sendmessage');
 
-async function handleSeeAllCommandsPostback(senderId) {
+async function handleSeeAllCommandsPostback(senderId, commandName) {
     try {
+        if (commandName !== 'help') {
+            console.warn(`SEE_ALL_COMMANDS_PAYLOAD triggered outside of 'help' command context.`);
+            await api.sendMessage(senderId, {
+                text: "This action is not available here."
+            });
+            return;
+        }
+
         const commandsPath = path.join(__dirname, '../../cmd');
         const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
