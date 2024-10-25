@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const api = require('../../jubiar-pagebot-api/sendmessage');
+const api = require('../jubiar-pagebot-api/sendmessage');
 
 async function handleSeeAllCommandsPostback(senderId, commandName) {
     try {
