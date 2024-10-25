@@ -11,6 +11,13 @@ module.exports = {
         try {
             // Check if the message text matches the command name
             if (messageText.trim() === this.name) {
+                
+                // Send a "processing" indicator message to the user
+                await api.sendMessage(senderId, {
+                    recipient: { id: senderId },
+                    message: { text: 'Processing your video, please wait...' }
+                });
+
                 // Make the API request to get the video
                 const response = await axios.get('https://shoti.kenliejugarap.com/getvideo.php?apikey=shoti-0763839a3b9de35ae3da73816d087d57d1bbae9f8997d9ebd0da823850fb80917e69d239a7f7db34b4d139a5e3b02658ed26f49928e5ab40f57c9798c9ae7290c536d8378ea8b01399723aaf35f62fae7c58d08f04');
 
@@ -63,9 +70,14 @@ module.exports = {
                 } else {
                     // If no video is found, send an error message
                     const errorMessage = {
-                        text: Buffer.from('Sorry, no video was found.', 'utf-8').toString()
+                        text: 'Sorry, no video was found.'
                     };
-                    await api.sendMessage(senderId, { recipient: { id: senderId }, message: errorMessage });
+                    await api.sendMessage(senderId, {
+                        recipient: {
+                            id: senderId
+                        },
+                        message: { text: errorMessage }
+                    });
                 }
             }
         } catch (error) {
@@ -73,9 +85,14 @@ module.exports = {
             console.error('Error fetching, downloading, or sending the video:', error);
 
             const errorMessage = {
-                text: Buffer.from('An error occurred while fetching the video. Please try again later.', 'utf-8').toString()
+                text: 'An error occurred while fetching the video. Please try again later.'
             };
-            await api.sendMessage(senderId, { recipient: { id: senderId }, message: errorMessage });
+            await api.sendMessage(senderId, {
+                recipient: {
+                    id: senderId
+                },
+                message: { text: errorMessage }
+            });
         }
     }
 };
