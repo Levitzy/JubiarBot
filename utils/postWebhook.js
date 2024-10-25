@@ -20,6 +20,7 @@ module.exports = (app, commands) => {
                 } else if (webhookEvent.postback) {
                     const payload = webhookEvent.postback.payload;
 
+                    // Pass 'help' as commandName only when the help command is expected to trigger
                     await bot.handlePostback(senderId, payload, 'help');
                 }
             });
