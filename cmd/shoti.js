@@ -40,6 +40,7 @@ module.exports = {
                     // Send the video as an attachment
                     await api.sendMessage(senderId, {
                         attachment: {
+                            text: '{videoTitle}',
                             type: 'video',
                             payload: {
                                 is_reusable: true
