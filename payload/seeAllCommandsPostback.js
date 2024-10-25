@@ -12,7 +12,7 @@ async function handleSeeAllCommandsPostback(senderId, commandName) {
             return;
         }
 
-        const commandsPath = path.join(__dirname, '../../cmd');
+        const commandsPath = path.join(__dirname, '../cmd');
         const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
         if (commandFiles.length === 0) {
