@@ -4,43 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jubiar PageBot</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <div class="card-header">
+        <main class="card">
+            <header class="card-header">
                 <h1>Welcome to Jubiar PageBot</h1>
                 <p>Connected to Facebook Messenger and ready to serve commands.</p>
-            </div>
-            <div class="card-body">
+            </header>
+            <section class="card-body">
                 <div class="info-item">
-                    <i class="icon bot-icon"></i>
+                    <i class="icon bot-icon" aria-hidden="true"></i>
                     <span>Pagebot Name:</span>
                     <strong id="botName">Loading...</strong>
                 </div>
                 <div class="info-item">
-                    <i class="icon token-icon"></i>
+                    <i class="icon token-icon" aria-hidden="true"></i>
                     <span>Page Access Token Status:</span>
                     <strong id="accessTokenStatus">Loading...</strong>
                 </div>
                 <div class="info-item">
-                    <i class="icon command-icon"></i>
+                    <i class="icon command-icon" aria-hidden="true"></i>
                     <span>Total Commands:</span>
                     <strong id="totalCommands">Loading...</strong>
                 </div>
-            </div>
-            <div class="card-footer">
+            </section>
+            <footer class="card-footer">
                 <div class="status-indicator">
-                    <div class="pulse"></div>
+                    <div class="pulse" aria-hidden="true"></div>
                     <span>Bot Active</span>
                 </div>
-            </div>
-        </div>
+            </footer>
+        </main>
     </div>
-    <button id="darkModeToggle" class="dark-mode-toggle">🌙</button>
+    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
+        <span aria-hidden="true">🌙</span>
+    </button>
     <script src="script.js"></script>
 </body>
 </html>
