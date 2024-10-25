@@ -4,174 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jubiar PageBot</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #50c878;
-            --background-color: #f0f4f8;
-            --text-color: #333;
-            --card-background: #ffffff;
-            --error-color: #e74c3c;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            background-color: var(--card-background);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .container:hover {
-            transform: translateY(-5px);
-        }
-
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        p {
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            margin: 1rem 0;
-            padding: 0.5rem;
-            border-radius: 10px;
-            background-color: var(--background-color);
-            transition: background-color 0.3s ease;
-        }
-
-        .info-item:hover {
-            background-color: #e6e9ed;
-        }
-
-        .info-item i {
-            font-size: 1.5rem;
-            margin-right: 1rem;
-            color: var(--primary-color);
-        }
-
-        .info-item .label {
-            font-weight: bold;
-            margin-right: 0.5rem;
-        }
-
-        .status {
-            padding: 0.25rem 0.5rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .status.good {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-
-        .status.bad {
-            background-color: var(--error-color);
-            color: white;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error {
-            color: var(--error-color);
-            font-weight: bold;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 1rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Jubiar PageBot</h1>
-        <p>This bot is connected to Facebook Messenger and is ready to serve commands.</p>
-        
-        <div id="loading" class="loading"></div>
-        <div id="error" class="error" style="display: none;"></div>
-        <div id="content" style="display: none;">
-            <div class="info-item">
-                <i class="fas fa-robot"></i>
-                <span class="label">Pagebot Name:</span>
-                <strong id="botName"></strong>
+        <div class="card">
+            <div class="card-header">
+                <h1>Welcome to Jubiar PageBot</h1>
+                <p>Connected to Facebook Messenger and ready to serve commands.</p>
             </div>
-            <div class="info-item">
-                <i class="fas fa-key"></i>
-                <span class="label">Page Access Token Status:</span>
-                <span id="accessTokenStatus" class="status"></span>
+            <div class="card-body">
+                <div class="info-item">
+                    <i class="icon bot-icon"></i>
+                    <span>Pagebot Name:</span>
+                    <strong id="botName">Loading...</strong>
+                </div>
+                <div class="info-item">
+                    <i class="icon token-icon"></i>
+                    <span>Page Access Token Status:</span>
+                    <strong id="accessTokenStatus">Loading...</strong>
+                </div>
+                <div class="info-item">
+                    <i class="icon command-icon"></i>
+                    <span>Total Commands:</span>
+                    <strong id="totalCommands">Loading...</strong>
+                </div>
             </div>
-            <div class="info-item">
-                <i class="fas fa-terminal"></i>
-                <span class="label">Total Commands:</span>
-                <strong id="totalCommands"></strong>
+            <div class="card-footer">
+                <div class="status-indicator">
+                    <div class="pulse"></div>
+                    <span>Bot Active</span>
+                </div>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loading = document.getElementById('loading');
-            const error = document.getElementById('error');
-            const content = document.getElementById('content');
-
-            axios.get('/api/info')
-                .then(response => {
-                    const data = response.data;
-                    document.getElementById('botName').textContent = data.botName;
-                    const accessTokenStatus = document.getElementById('accessTokenStatus');
-                    accessTokenStatus.textContent = data.accessTokenStatus;
-                    accessTokenStatus.classList.add(data.accessTokenStatus === 'Valid' ? 'good' : 'bad');
-                    document.getElementById('totalCommands').textContent = data.totalCommands;
-                    
-                    loading.style.display = 'none';
-                    content.style.display = 'block';
-                })
-                .catch(err => {
-                    console.error('Error fetching bot information:', err);
-                    loading.style.display = 'none';
-                    error.textContent = 'Failed to load bot information. Please try again later.';
-                    error.style.display = 'block';
-                });
-        });
-    </script>
+    <button id="darkModeToggle" class="dark-mode-toggle">🌙</button>
+    <script src="script.js"></script>
 </body>
 </html>
