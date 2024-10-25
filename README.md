@@ -1,5 +1,3 @@
-Here is an updated version of the documentation structure with the inclusion of buttons for the `api.sendMessage` command:
-
 ---
 
 ### Command Structure for `api.sendMessage` with Buttons
