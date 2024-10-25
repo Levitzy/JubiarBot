@@ -39,9 +39,8 @@ module.exports = {
                         writer.on('error', reject);
                     });
 
-                    // Send the video file to the user
+                    // Send the video file to the user without the 'text' field
                     const responseMessage = {
-                        text: `Here is the video: ${videoTitle}`,
                         attachment: {
                             type: 'video',
                             payload: {
