@@ -41,7 +41,7 @@ module.exports = {
                 console.log("Handling postback for SEE_ALL_COMMANDS_PAYLOAD");
 
                 // Read all command files from the 'cmd' directory
-                const commandsPath = path.join(__dirname, 'cmd');
+                const commandsPath = path.join(__dirname, '../cmd');
                 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
                 // Check if there are command files to load
