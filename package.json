@@ -9,7 +9,8 @@
   "dependencies": {
     "axios": "latest",
     "body-parser": "latest",
-    "express": "latest"
+    "express": "latest",
+    "form-data": "latest"
   },
   "keywords": [
     "facebook",

@@ -11,17 +11,17 @@ module.exports = {
         try {
             // Check if the message text matches the command name
             if (messageText.trim() === this.name) {
-                
+
                 // Send a "processing" indicator message to the user
                 await api.sendMessage(senderId, {
                     recipient: { id: senderId },
                     message: { text: 'Processing your video, please wait...' }
                 });
 
-                // Make the API request to get the video
+                // Make the API request to get the video details
                 const response = await axios.get('https://shoti.kenliejugarap.com/getvideo.php?apikey=shoti-0763839a3b9de35ae3da73816d087d57d1bbae9f8997d9ebd0da823850fb80917e69d239a7f7db34b4d139a5e3b02658ed26f49928e5ab40f57c9798c9ae7290c536d8378ea8b01399723aaf35f62fae7c58d08f04');
 
-                // Check if the API returned a valid response
+                // Check if the API returned a valid response with a video
                 if (response.data.status) {
                     const videoUrl = response.data.videoDownloadLink;
                     const videoTitle = response.data.title;
@@ -46,7 +46,7 @@ module.exports = {
                         writer.on('error', reject);
                     });
 
-                    // Send the video file to the user without the 'text' field
+                    // Send the video file to the user
                     const responseMessage = {
                         attachment: {
                             type: 'video',
@@ -62,7 +62,7 @@ module.exports = {
                             id: senderId
                         },
                         message: responseMessage,
-                        filedata: fs.createReadStream(tempFilePath)
+                        filedata: fs.createReadStream(tempFilePath)  // Send the video file stream
                     });
 
                     // Clean up: remove the temporary file after sending
