@@ -37,16 +37,16 @@ module.exports = {
                         writer.on('error', reject);
                     });
 
-                    // Send the video as an attachment
+                    // Send text with the video attachment
                     await api.sendMessage(senderId, {
+                        text: `${videoTitle}\n\nCreated by Jubiar`,
                         attachment: {
-                            text: '${videoTitle}\n\nCreated: Jubiar',
                             type: 'video',
                             payload: {
+                                url: videoUrl,
                                 is_reusable: true
                             }
-                        },
-                        filedata: fs.createReadStream(tempFilePath)
+                        }
                     });
 
                     fs.unlinkSync(tempFilePath);
