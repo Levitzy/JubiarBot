@@ -10,7 +10,6 @@ module.exports = {
     async execute(senderId, messageText) {
         try {
             if (messageText.trim() === this.name) {
-                // Inform the user that the video is being processed
                 await api.sendMessage(senderId, {
                     text: 'Processing your video, please wait...'
                 });
@@ -46,13 +45,11 @@ module.exports = {
                                 is_reusable: true
                             }
                         },
-                        filedata: fs.createReadStream(tempFilePath)  // Attach the video file
+                        filedata: fs.createReadStream(tempFilePath)
                     });
 
-                    // Delete the temporary file after sending
                     fs.unlinkSync(tempFilePath);
                 } else {
-                    // Send an error message if no video is available
                     await api.sendMessage(senderId, { text: 'Sorry, no video was found.' });
                 }
             }

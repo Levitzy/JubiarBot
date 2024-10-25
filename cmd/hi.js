@@ -6,7 +6,7 @@ module.exports = {
 
     async execute(senderId, messageText) {
         if (messageText.trim() === this.name) {
-            const responseMessage = `Hello! You used the ${this.name} command.`;
+            const responseMessage = { text: `Hello! You used the ${this.name} command.` };
             await api.sendMessage(senderId, responseMessage);
         }
     }

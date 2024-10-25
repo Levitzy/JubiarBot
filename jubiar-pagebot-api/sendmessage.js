@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const FormData = require('form-data');
 
-// Read PAGE_ACCESS_TOKEN from token.txt
 const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, '../token.txt'), 'utf8').trim();
 
 module.exports.sendMessage = async (recipientId, message) => {
@@ -11,18 +10,15 @@ module.exports.sendMessage = async (recipientId, message) => {
 
     try {
         if (message.filedata) {
-            // If there's a video file, use FormData to send it as a file attachment
             const formData = new FormData();
             formData.append('recipient', JSON.stringify({ id: recipientId }));
             formData.append('message', JSON.stringify({ attachment: message.attachment }));
             formData.append('filedata', message.filedata);
 
-            // Send the request with FormData headers
             await axios.post(url, formData, {
                 headers: formData.getHeaders()
             });
         } else {
-            // Otherwise, send text or other types of attachments without filedata
             const data = {
                 recipient: { id: recipientId },
                 message: message.attachment ? { attachment: message.attachment } : { text: message.text }
