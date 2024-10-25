@@ -31,12 +31,6 @@ body {
   transition: background-color 0.3s ease;
 }
 
-.container {
-  width: 100%;
-  max-width: 600px;
-  padding: 24px;
-}
-
 .card {
   background-color: var(--md-sys-color-surface);
   border-radius: 28px;
@@ -206,4 +200,76 @@ body.dark-mode {
   .info-item {
     padding: 8px;
   }
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  background-color: var(--md-sys-color-surface);
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  transition: box-shadow 0.3s ease;
+}
+
+.command-list {
+  margin-top: 24px;
+}
+
+.command-list h2 {
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 16px;
+  color: var(--md-sys-color-on-surface);
+}
+
+.command-items {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.command-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: var(--md-sys-color-surface-variant);
+  border-radius: 16px;
+  margin-bottom: 8px;
+}
+
+.command-item:last-child {
+  margin-bottom: 0;
+}
+
+.command-item span {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 16px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  h1, h2 {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .info-item, .command-item {
+    padding: 8px;
+  }
+}
 }

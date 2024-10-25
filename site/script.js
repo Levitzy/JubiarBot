@@ -34,6 +34,17 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error(message);
     }
 
+    function updateCommandList(commands) {
+        const commandList = document.getElementById('commandList');
+        commandList.innerHTML = '';
+        commands.forEach(command => {
+            const li = document.createElement('li');
+            li.className = 'command-item';
+            li.innerHTML = `<span>${command}</span>`;
+            commandList.appendChild(li);
+        });
+    }
+
     axios.get('/api/info')
         .then(response => {
             const data = response.data;
@@ -41,10 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
             updateInfo('accessTokenStatus', data.accessTokenStatus);
             updateInfo('totalCommands', data.totalCommands);
 
-            if (data.accessTokenStatus === 'Valid') {
+            if (data.accessTokenStatus === 'Good') {
                 document.getElementById('accessTokenStatus').classList.add('valid');
             } else {
                 document.getElementById('accessTokenStatus').classList.add('invalid');
+            }
+
+            if (data.commands && Array.isArray(data.commands)) {
+                updateCommandList(data.commands);
             }
         })
         .catch(error => {
