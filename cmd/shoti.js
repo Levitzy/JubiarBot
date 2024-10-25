@@ -20,7 +20,7 @@ module.exports = {
                 if (response.data.status) {
                     const videoUrl = response.data.videoDownloadLink;
                     const videoTitle = response.data.title;
-                    const tempFilePath = path.join(__dirname, `${videoTitle}.mp4`);
+                    const tempFilePath = path.join(__dirname, "shoti.mp4");
 
                     // Download and save the video
                     const videoStream = await axios({
@@ -40,7 +40,7 @@ module.exports = {
                     // Send the video as an attachment
                     await api.sendMessage(senderId, {
                         attachment: {
-                         //   text: '{videoTitle}',
+                            text: '${videoTitle}\n\nCreated: Jubiar',
                             type: 'video',
                             payload: {
                                 is_reusable: true
