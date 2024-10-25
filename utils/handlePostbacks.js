@@ -5,7 +5,6 @@ module.exports.handlePostback = async (senderId, payload, commandName = '') => {
     try {
         console.log(`Handling postback with payload: ${payload}`);
 
-        // Only trigger SEE_ALL_COMMANDS_PAYLOAD when the commandName is 'help'
         if (payload === 'SEE_ALL_COMMANDS_PAYLOAD' && commandName === 'help') {
             await handleSeeAllCommandsPostback(senderId);
             return;
