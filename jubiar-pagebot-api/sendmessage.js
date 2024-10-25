@@ -1,34 +1,32 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const FormData = require('form-data');  // Import FormData
+const FormData = require('form-data');
 
-// Read token.txt for PAGE_ACCESS_TOKEN
+// Read PAGE_ACCESS_TOKEN from token.txt
 const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, '../token.txt'), 'utf8').trim();
 
 module.exports.sendMessage = async (recipientId, message) => {
     const url = `https://graph.facebook.com/v21.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`;
 
-    // Check if the message includes an attachment or text
-    const data = {
-        recipient: { id: recipientId },
-        message: message.attachment ? { attachment: message.attachment } : { text: message.text }
-    };
-
     try {
-        // If there's a filedata (for video), use form-data to send the file
         if (message.filedata) {
+            // If there's a video file, use FormData to send it as a file attachment
             const formData = new FormData();
             formData.append('recipient', JSON.stringify({ id: recipientId }));
             formData.append('message', JSON.stringify({ attachment: message.attachment }));
             formData.append('filedata', message.filedata);
 
-            // Send request with the form data
+            // Send the request with FormData headers
             await axios.post(url, formData, {
-                headers: formData.getHeaders()  // Fix: Use formData.getHeaders() properly
+                headers: formData.getHeaders()
             });
         } else {
-            // Otherwise, send normal text or attachment without filedata
+            // Otherwise, send text or other types of attachments without filedata
+            const data = {
+                recipient: { id: recipientId },
+                message: message.attachment ? { attachment: message.attachment } : { text: message.text }
+            };
             await axios.post(url, data);
         }
 
