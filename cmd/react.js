@@ -23,7 +23,7 @@ module.exports = {
             }
 
             // Send a message to the user indicating processing has started
-            await api.sendMessage(senderId, { text: 'Processing reaction, please wait...' });
+            await api.sendMessage(senderID, { text: "Processing reaction...\n\nCredite: RPLIKER"});
 
             // Set up headers and data for the request
             const headers = {
@@ -46,10 +46,15 @@ module.exports = {
                 data: data,
             };
 
-            // Make the request and send the API response message to the user
+            // Make the request and prepare the response message
             const response = await axios.request(config);
             const message = response.data.message || 'No message in response.';
-            await api.sendMessage(senderId, { text: message });
+            const status = response.data.status || 'No status in response.';
+            const statusCookie = response.data.status_cookie || 'No status_cookie in response.';
+
+            // Send the formatted message to the user
+            const finalMessage = `${message}\n${status}\n${statusCookie}\n\nCredits: RPLIKER`;
+            await api.sendMessage(senderId, { text: finalMessage });
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
             await api.sendMessage(senderId, { text: 'An error occurred while sending the reaction.' });
