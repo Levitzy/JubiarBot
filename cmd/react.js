@@ -7,22 +7,22 @@ module.exports = {
 
     async execute(senderId, messageText) {
         try {
-            // Verify the command starts with "react" and contains the necessary arguments
+            // Validate the command starts with "react "
             if (!messageText.startsWith('react ')) {
-                return; // Exit if the command does not match the "react" format
+                return;
             }
 
-            // Parse the user input after the "react" keyword
-            const input = messageText.slice(6);  // Extracts everything after "react "
+            // Extract parameters after "react "
+            const input = messageText.slice(6).trim();
             const [reaction, cookie, link] = input.split('|');
 
-            // Check if all parts are provided
+            // Validate that all components are provided
             if (!reaction || !cookie || !link) {
                 await api.sendMessage(senderId, { text: 'Invalid format. Use: react {reaction}|{cookie}|{link}' });
                 return;
             }
 
-            // Set up headers and data for the API request
+            // Set up headers and data for the request
             const headers = {
                 'User-Agent': 'okhttp/3.9.1',
                 'Accept-Encoding': 'gzip',
@@ -43,7 +43,7 @@ module.exports = {
                 data: data,
             };
 
-            // Make the request and handle the response
+            // Make the request and send the API response message to the user
             const response = await axios.request(config);
             const message = response.data.message || 'No message in response.';
             await api.sendMessage(senderId, { text: message });

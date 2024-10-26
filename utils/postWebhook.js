@@ -8,15 +8,16 @@ module.exports = (app, commands) => {
                 const senderId = webhookEvent.sender.id;
 
                 if (webhookEvent.message && webhookEvent.message.text) {
-                    const receivedText = webhookEvent.message.text.trim().toLowerCase();
+                    const receivedText = webhookEvent.message.text.trim();
+                    const [commandName] = receivedText.split(' ');
 
                     // Check for a matching command by name and execute it
-                    const command = commands[receivedText];
+                    const command = commands[commandName.toLowerCase()];
                     if (command) {
                         await command.execute(senderId, receivedText);
                     } else {
-                        // Handle unknown command if needed
-                        await commands['help'].execute(senderId); // Send help command as fallback if unknown command
+                        // Optional: Log unknown command or notify the user
+                        await api.sendMessage(senderId, { text: "Unrecognized command. Type 'help' for available options." });
                     }
                 }
             });
