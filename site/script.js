@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const darkModeToggle = document.getElementById('darkModeToggle');
     const restartBotButton = document.getElementById('restartBotButton');
-    const logContainer = document.getElementById('logContainer');
+    const addTokenForm = document.getElementById('addTokenForm');
     const body = document.body;
 
     restartBotButton.addEventListener('click', () => {
@@ -58,6 +58,20 @@ document.addEventListener('DOMContentLoaded', () => {
             commandList.appendChild(div);
         });
     }
+    
+    addTokenForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const pageToken = document.getElementById('pageToken').value;
+
+        try {
+            const response = await axios.post('/api/addToken', {
+                token: pageToken
+            });
+            alert(response.data.message);
+        } catch (error) {
+            alert('Error adding token: ' + error.response.data.message);
+        }
+    });
 
     // Fetch bot info for bot name, token status, and command list
     axios.get('/api/info')
@@ -79,32 +93,5 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             showError('Error fetching bot information: ' + error.message);
-        });
-
-    // Function to update the log container with fetched logs
-    function updateLogContainer(logs) {
-        logContainer.innerHTML = ''; // Clear existing logs
-        if (logs.length === 0) {
-            logContainer.innerHTML = '<p>No logs available.</p>';
-        } else {
-            logs.forEach(log => {
-                const logEntry = document.createElement('div');
-                logEntry.className = 'log-item';
-                logEntry.textContent = log;
-                logContainer.appendChild(logEntry);
-            });
-        }
-    }
-
-    // Fetch logs and display them
-    axios.get('/api/logBot')
-        .then(response => {
-            if (response.data.logs) {
-                updateLogContainer(response.data.logs);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching logs:', error.message);
-            logContainer.innerHTML = '<p>Error loading logs.</p>';
         });
 });

@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,23 +48,20 @@
                 <!-- Command items will be dynamically inserted here -->
             </div>
         </section>
-        <!-- index.html -->
-<section class="log-card">
-    <header class="card-header">
-        <h2>Bot Logs</h2>
-    </header>
-    <div id="logContainer" class="log-items">
-        <!-- Log entries will be dynamically inserted here -->
-    </div>
-</section>
-
+        <section class="add-token-form">
+        <h2>Add New Page Bot Token</h2>
+        <form id="addTokenForm">
+            <input type="text" id="pageToken" placeholder="Enter Page Access Token" required>
+            <button type="submit">Submit Token</button>
+        </form>
+    </section>
     </div>
     <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
         <span aria-hidden="true">🌙</span>
     </button>
     <button id="restartBotButton" class="restart-bot-button" aria-label="Restart Bot">
-    <span>Restart Bot</span>
-</button>
+        <span>Restart Bot</span>
+    </button>
     <script src="script.js"></script>
 </body>
 </html>

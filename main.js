@@ -1,83 +1,60 @@
-// main.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios');
 const loadCommands = require('./utils/loadCommand');
 const getWebhook = require('./utils/getWebhook');
 const postWebhook = require('./utils/postWebhook');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const VERIFY_TOKEN = 'jubiar'; 
-const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, 'token.txt'), 'utf8').trim();
-const BOT_NAME = 'JubiarBot';
+const VERIFY_TOKEN = 'jubiar';
+const tokenFilePath = path.join(__dirname, 'token.json');
 
 app.use(bodyParser.json());
 
-async function checkPageAccessToken() {
-    try {
-        const response = await axios.get(`https://graph.facebook.com/v12.0/me?access_token=${PAGE_ACCESS_TOKEN}`);
-        return response.data ? 'Good' : 'Bad';
-    } catch (error) {
-        return 'Bad';
+// Load tokens from token.json
+function loadTokens() {
+    if (!fs.existsSync(tokenFilePath)) {
+        fs.writeFileSync(tokenFilePath, JSON.stringify({ tokens: [] }, null, 2));
     }
+    const data = fs.readFileSync(tokenFilePath, 'utf8');
+    return JSON.parse(data).tokens;
 }
+
+// Save a new token to token.json
+function saveToken(newToken) {
+    const tokens = loadTokens();
+    tokens.push(newToken);
+    fs.writeFileSync(tokenFilePath, JSON.stringify({ tokens }, null, 2));
+}
+
+// API to add a new page bot token
+app.post('/api/addToken', (req, res) => {
+    const { token } = req.body;
+    if (!token) {
+        return res.status(400).json({ message: 'Token is required.' });
+    }
+    saveToken(token);
+    res.status(200).json({ message: 'Token added successfully.' });
+});
 
 let commands = {};
 
-// API endpoint to restart the bot
-app.post('/api/restartBot', (req, res) => {
-    try {
-        commands = loadCommands(); // Reload commands
-        res.status(200).json({ message: 'Bot restarted successfully.' });
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to restart the bot.' });
-    }
-});
-
-// New API endpoint to fetch logs
-app.get('/api/logBot', (req, res) => {
-    const logFilePath = path.join(__dirname, 'bot.log');
-    
-    // Check if the log file exists before reading it
-    fs.access(logFilePath, fs.constants.F_OK, (err) => {
-        if (err) {
-            // Log file doesn't exist, return an empty array
-            return res.status(200).json({ logs: [] });
-        }
-
-        // Read the log file if it exists
-        fs.readFile(logFilePath, 'utf8', (err, data) => {
-            if (err) {
-                return res.status(500).json({ message: 'Failed to retrieve logs.' });
-            }
-            // Split logs by newline and filter out any empty entries
-            res.status(200).json({ logs: data.split('\n').filter(log => log.trim() !== '') });
-        });
-    });
-});
-
 app.get('/api/info', async (req, res) => {
-    const accessTokenStatus = await checkPageAccessToken();
-
     if (Object.keys(commands).length === 0) {
         commands = loadCommands();
     }
 
     const commandNames = Object.keys(commands);
-
     res.json({
-        botName: BOT_NAME,
-        accessTokenStatus: accessTokenStatus,
+        botName: "JubiarBot",
         totalCommands: commandNames.length,
         commands: commandNames,
     });
 });
 
 getWebhook(app, VERIFY_TOKEN);
-
 app.use(express.static(path.join(__dirname, 'site')));
 
 app.listen(PORT, async () => {
