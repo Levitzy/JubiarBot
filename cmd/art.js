@@ -1,6 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
@@ -20,27 +18,23 @@ module.exports = {
             // API URL for image generation
             const imageUrl = `https://joshweb.click/api/art?prompt=${encodeURIComponent(userInput)}`;
 
-            // Download the image
-            const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-            const imageBuffer = Buffer.from(response.data, 'binary');
+            // Attempt to retrieve the image URL directly
+            const response = await axios.get(imageUrl, { responseType: 'json' });
 
-            // Define temporary file path
-            const filePath = path.join(__dirname, `${senderId}_art_image.jpg`);
-            fs.writeFileSync(filePath, imageBuffer);
-
-            // Send the image to the user
-            await api.sendMessage(senderId, {
-                attachment: {
-                    type: 'image',
-                    payload: {
-                        url: `file://${filePath}`,
-                        is_reusable: true
+            if (response.data && response.data.imageUrl) {
+                // Send the image URL directly to the user
+                await api.sendMessage(senderId, {
+                    attachment: {
+                        type: 'image',
+                        payload: {
+                            url: response.data.imageUrl, // Assuming API returns a direct image URL here
+                            is_reusable: true
+                        }
                     }
-                }
-            });
-
-            // Clean up the temporary file after sending
-            fs.unlinkSync(filePath);
+                });
+            } else {
+                await api.sendMessage(senderId, { text: 'No valid image was returned from the art generation service.' });
+            }
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
             await api.sendMessage(senderId, { text: 'An error occurred while generating your art image.' });
