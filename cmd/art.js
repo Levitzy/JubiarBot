@@ -1,5 +1,6 @@
 const axios = require('axios');
 const api = require('../jubiar-pagebot-api/sendmessage');
+const FormData = require('form-data'); // Import FormData to send the image
 
 module.exports = {
     name: 'art',
@@ -18,23 +19,27 @@ module.exports = {
             // API URL for image generation
             const imageUrl = `https://joshweb.click/api/art?prompt=${encodeURIComponent(userInput)}`;
 
-            // Attempt to retrieve the image URL directly
-            const response = await axios.get(imageUrl, { responseType: 'json' });
+            // Download the image as a buffer
+            const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+            const imageBuffer = Buffer.from(response.data, 'binary');
 
-            if (response.data && response.data.imageUrl) {
-                // Send the image URL directly to the user
-                await api.sendMessage(senderId, {
-                    attachment: {
-                        type: 'image',
-                        payload: {
-                            url: response.data.imageUrl, // Assuming API returns a direct image URL here
-                            is_reusable: true
-                        }
+            // Create a FormData object to handle image upload
+            const formData = new FormData();
+            formData.append('file', imageBuffer, {
+                filename: 'art_image.jpg',
+                contentType: 'image/jpeg',
+            });
+
+            // Send the image to the user using api.sendMessage
+            await api.sendMessage(senderId, {
+                attachment: {
+                    type: 'image',
+                    payload: {
+                        is_reusable: true
                     }
-                });
-            } else {
-                await api.sendMessage(senderId, { text: 'No valid image was returned from the art generation service.' });
-            }
+                },
+                filedata: formData
+            });
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
             await api.sendMessage(senderId, { text: 'An error occurred while generating your art image.' });
