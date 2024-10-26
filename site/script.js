@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const darkModeToggle = document.getElementById('darkModeToggle');
+    const restartButton = document.getElementById('restartBot');
+    restartButton.addEventListener('click', restartBot);
     const body = document.body;
 
     // Check for saved dark mode preference
@@ -18,6 +20,20 @@ document.addEventListener('DOMContentLoaded', () => {
             darkModeToggle.textContent = '🌙';
         }
     });
+    
+    function restartBot() {
+        axios.post('/api/restartBot')
+            .then(response => {
+                console.log('Bot restarted successfully');
+                alert('Bot has been restarted successfully!');
+                // Optionally, you can refresh the page or update the bot info
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error restarting bot:', error);
+                alert('Failed to restart the bot. Please try again.');
+            });
+    }
 
     function updateInfo(id, value) {
         const element = document.getElementById(id);
