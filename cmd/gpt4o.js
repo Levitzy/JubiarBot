@@ -23,7 +23,7 @@ module.exports = {
             try {
                 response = await axios.get(primaryUrl);
             } catch (primaryError) {
-                await api.sendMessage(senderId, { text: 'The primary service is currently unavailable, switching to an alternative server...' });
+                await api.sendMessage(senderId, { text: 'The primary service is currently unavailable, switching to an alternative server please wait...' });
                 response = await axios.get(fallbackUrl);
             }
 
