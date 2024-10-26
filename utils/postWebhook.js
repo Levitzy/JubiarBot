@@ -1,5 +1,3 @@
-const bot = require('../jubiar-pagebot-api/bot');
-
 module.exports = (app, commands) => {
     app.post('/webhook', async (req, res) => {
         const body = req.body;
@@ -17,11 +15,6 @@ module.exports = (app, commands) => {
                         const command = commands[commandName];
                         await command.execute(senderId, receivedText);
                     }
-                } else if (webhookEvent.postback) {
-                    const payload = webhookEvent.postback.payload;
-
-                    // Pass 'help' as commandName only when the help command is expected to trigger
-                    await bot.handlePostback(senderId, payload, 'help');
                 }
             });
             res.status(200).send('EVENT_RECEIVED');
