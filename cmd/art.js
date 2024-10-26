@@ -21,23 +21,17 @@ module.exports = {
 
             // Download the image
             const response = await axios.get(url, { responseType: 'arraybuffer' });
-            const imagePath = `art_${Date.now()}.jpg`; // File saved in the current directory
-            fs.writeFileSync(imagePath, response.data);
+            const imageBuffer = Buffer.from(response.data, 'binary');
 
-            // Send the downloaded image to the user
+            // Send the image directly to the user
             await api.sendMessage(senderId, {
                 attachment: {
                     type: 'image',
                     payload: {
-                        url: `file://${imagePath}`,
                         is_reusable: true
                     }
-                }
-            });
-
-            // Clean up the file after sending
-            fs.unlink(imagePath, (err) => {
-                if (err) console.error('Error deleting the image file:', err);
+                },
+                filedata: imageBuffer // Directly send image buffer
             });
 
         } catch (error) {
