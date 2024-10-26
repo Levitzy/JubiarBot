@@ -1,6 +1,5 @@
 const axios = require('axios');
 const fs = require('fs');
-const path = require('path');
 const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
@@ -22,7 +21,7 @@ module.exports = {
 
             // Download the image
             const response = await axios.get(url, { responseType: 'arraybuffer' });
-            const imagePath = path.join(__dirname, `../downloads/art_${Date.now()}.jpg`);
+            const imagePath = `art_${Date.now()}.jpg`; // File saved in the current directory
             fs.writeFileSync(imagePath, response.data);
 
             // Send the downloaded image to the user
