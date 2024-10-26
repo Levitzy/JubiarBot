@@ -15,7 +15,7 @@ module.exports = {
             commandFiles.forEach(file => {
                 const command = require(require('path').join(commandsPath, file));
                 if (command.name && command.description) {
-                    commandListText += `• /${command.name}: ${command.description}\n`;
+                    commandListText += `• ${command.name}: ${command.description}\n`;
                 } else {
                     console.warn(`Command in file ${file} is missing a name or description.`);
                 }
