@@ -15,7 +15,17 @@ app.use(bodyParser.json());
 
 let commands = {};
 
+async function checkPageAccessToken() {
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v10.0/me?access_token=${PAGE_ACCESS_TOKEN}`);
+        return response.data ? 'Good' : 'Bad';
+    } catch (error) {
+        return 'Bad';
+    }
+}
+
 app.get('/api/info', async (req, res) => {
+    const accessTokenStatus = await checkPageAccessToken();
     if (Object.keys(commands).length === 0) {
         commands = loadCommands();
     }
@@ -25,7 +35,17 @@ app.get('/api/info', async (req, res) => {
         botName: "JubiarBot",
         totalCommands: commandNames.length,
         commands: commandNames,
+        accessTokenStatus: accessTokenStatus,
     });
+});
+
+app.post('/api/restartBot', (req, res) => {
+    try {
+        commands = loadCommands(); // Reload commands
+        res.status(200).json({ message: 'Bot restarted successfully.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to restart the bot.' });
+    }
 });
 
 getWebhook(app, VERIFY_TOKEN);
