@@ -21,8 +21,6 @@ module.exports = {
                 await api.sendMessage(senderId, { text: 'Invalid format. Use: react {reaction}|{cookie}|{link}' });
                 return;
             }
-            
-            api.sendMessage(senderID, {text: "Processing react...\n\nCredits: RPLIKER"});
 
             // Set up headers and data for the request
             const headers = {
