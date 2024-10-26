@@ -39,11 +39,23 @@ app.post('/api/restartBot', (req, res) => {
 
 // New API endpoint to fetch logs
 app.get('/api/logBot', (req, res) => {
-    fs.readFile(path.join(__dirname, 'bot.log'), 'utf8', (err, data) => {
+    const logFilePath = path.join(__dirname, 'bot.log');
+    
+    // Check if the log file exists before reading it
+    fs.access(logFilePath, fs.constants.F_OK, (err) => {
         if (err) {
-            return res.status(500).json({ message: 'Failed to retrieve logs.' });
+            // Log file doesn't exist, return an empty array
+            return res.status(200).json({ logs: [] });
         }
-        res.status(200).json({ logs: data.split('\n') });
+
+        // Read the log file if it exists
+        fs.readFile(logFilePath, 'utf8', (err, data) => {
+            if (err) {
+                return res.status(500).json({ message: 'Failed to retrieve logs.' });
+            }
+            // Split logs by newline and filter out any empty entries
+            res.status(200).json({ logs: data.split('\n').filter(log => log.trim() !== '') });
+        });
     });
 });
 

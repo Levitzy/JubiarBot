@@ -84,12 +84,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to update the log container with fetched logs
     function updateLogContainer(logs) {
         logContainer.innerHTML = ''; // Clear existing logs
-        logs.forEach(log => {
-            const logEntry = document.createElement('div');
-            logEntry.className = 'log-item';
-            logEntry.textContent = log;
-            logContainer.appendChild(logEntry);
-        });
+        if (logs.length === 0) {
+            logContainer.innerHTML = '<p>No logs available.</p>';
+        } else {
+            logs.forEach(log => {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-item';
+                logEntry.textContent = log;
+                logContainer.appendChild(logEntry);
+            });
+        }
     }
 
     // Fetch logs and display them
