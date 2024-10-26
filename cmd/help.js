@@ -6,31 +6,46 @@ module.exports = {
 
     async execute(senderId) {
         try {
-            // Create quick replies from the available commands
-            const quick_replies = [];
+            // Load all available commands from the cmd folder
             const commandsPath = require('path').join(__dirname, '../cmd');
             const commandFiles = require('fs').readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-            commandFiles.forEach(file => {
+            const buttons = commandFiles.map(file => {
                 const command = require(require('path').join(commandsPath, file));
-                if (command.name) {
-                    quick_replies.push({
-                        content_type: "text",
-                        title: `/${command.name}`, // Prefix with '/' as an example
-                        payload: command.name.toUpperCase()
-                    });
-                }
+                return {
+                    type: "postback",
+                    title: `/${command.name}`, // Prefix with '/' as an example
+                    payload: command.name
+                };
             });
 
-            // Prepare and send the response with quick replies and buttons
-            const responseMessage = {
-                quick_replies,
+            // Split buttons into chunks of 3 (Facebook limits to 3 buttons per message)
+            const buttonChunks = [];
+            for (let i = 0; i < buttons.length; i += 3) {
+                buttonChunks.push(buttons.slice(i, i + 3));
+            }
+
+            // Send each chunk of buttons as a separate message
+            for (const chunk of buttonChunks) {
+                await api.sendMessage(senderId, {
+                    attachment: {
+                        type: "template",
+                        payload: {
+                            template_type: "button",
+                            text: `🤖 | Here are available commands. Click a command to execute it.`,
+                            buttons: chunk
+                        }
+                    }
+                });
+            }
+
+            // Add contact admin buttons
+            await api.sendMessage(senderId, {
                 attachment: {
                     type: "template",
                     payload: {
                         template_type: "button",
-                        text: `🤖 | These are the commands on Wie AI below.
-🔎 | Click every command to see the usage.`,
+                        text: "Need further assistance? Contact an admin:",
                         buttons: [
                             {
                                 type: "web_url",
@@ -45,9 +60,7 @@ module.exports = {
                         ]
                     }
                 }
-            };
-
-            await api.sendMessage(senderId, responseMessage);
+            });
         } catch (error) {
             console.error("Error in help command:", error.message);
             await api.sendMessage(senderId, { text: "An error occurred while retrieving the commands." });
