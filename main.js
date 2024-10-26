@@ -37,6 +37,16 @@ app.post('/api/restartBot', (req, res) => {
     }
 });
 
+// New API endpoint to fetch logs
+app.get('/api/logBot', (req, res) => {
+    fs.readFile(path.join(__dirname, 'bot.log'), 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Failed to retrieve logs.' });
+        }
+        res.status(200).json({ logs: data.split('\n') });
+    });
+});
+
 app.get('/api/info', async (req, res) => {
     const accessTokenStatus = await checkPageAccessToken();
 
