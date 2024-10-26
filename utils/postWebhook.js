@@ -6,14 +6,17 @@ module.exports = (app, commands) => {
             body.entry.forEach(async function(entry) {
                 const webhookEvent = entry.messaging[0];
                 const senderId = webhookEvent.sender.id;
-                console.log(webhookEvent);
 
                 if (webhookEvent.message && webhookEvent.message.text) {
-                    const receivedText = webhookEvent.message.text;
+                    const receivedText = webhookEvent.message.text.trim().toLowerCase();
 
-                    for (const commandName in commands) {
-                        const command = commands[commandName];
+                    // Check for a matching command by name and execute it
+                    const command = commands[receivedText];
+                    if (command) {
                         await command.execute(senderId, receivedText);
+                    } else {
+                        // Handle unknown command if needed
+                        await commands['help'].execute(senderId); // Send help command as fallback if unknown command
                     }
                 }
             });
