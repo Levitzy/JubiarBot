@@ -1,6 +1,7 @@
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 const api = require('../jubiar-pagebot-api/sendmessage');
-const FormData = require('form-data'); // Import FormData to send the image
 
 module.exports = {
     name: 'art',
@@ -19,27 +20,27 @@ module.exports = {
             // API URL for image generation
             const imageUrl = `https://joshweb.click/api/art?prompt=${encodeURIComponent(userInput)}`;
 
-            // Download the image as a buffer
+            // Download the image from the API
             const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
             const imageBuffer = Buffer.from(response.data, 'binary');
 
-            // Create a FormData object to handle image upload
-            const formData = new FormData();
-            formData.append('file', imageBuffer, {
-                filename: 'art_image.jpg',
-                contentType: 'image/jpeg',
-            });
+            // Define a temporary file path
+            const filePath = path.join(__dirname, `${senderId}_art_image.jpg`);
+            fs.writeFileSync(filePath, imageBuffer);
 
-            // Send the image to the user using api.sendMessage
+            // Send the image as an attachment
             await api.sendMessage(senderId, {
                 attachment: {
                     type: 'image',
                     payload: {
+                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`,
                         is_reusable: true
                     }
-                },
-                filedata: formData
+                }
             });
+
+            // Clean up the temporary file after sending
+            fs.unlinkSync(filePath);
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
             await api.sendMessage(senderId, { text: 'An error occurred while generating your art image.' });
