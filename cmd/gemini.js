@@ -23,9 +23,11 @@ module.exports = {
             const url = `https://deku-rest-apis.ooguy.com/gemini?prompt=${encodeURIComponent(userInput)}`;
             const response = await axios.get(url);
 
-            // Extract the "gemini" value from the response and clean it
+            // Extract the "gemini" value from the response
             let geminiMessage = response.data.gemini || 'No response from Gemini.';
-            geminiMessage = geminiMessage.replace(/\*/g, '').replace(/\s+/g, ''); // Remove asterisks and extra spaces
+
+            // Remove markdown symbols for clarity
+            geminiMessage = geminiMessage.replace(/(\*\*|\*|```|_|~|>)/g, '');
 
             // Send the cleaned response back to the user
             await api.sendMessage(senderId, { text: geminiMessage });
