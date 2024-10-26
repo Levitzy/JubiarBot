@@ -22,6 +22,9 @@ module.exports = {
                 return;
             }
 
+            // Send a message to the user indicating processing has started
+            await api.sendMessage(senderId, { text: 'Processing reaction, please wait...' });
+
             // Set up headers and data for the request
             const headers = {
                 'User-Agent': 'okhttp/3.9.1',
