@@ -17,7 +17,7 @@ let commands = {};
 
 async function checkPageAccessToken() {
     try {
-        const response = await axios.get(`https://graph.facebook.com/v10.0/me?access_token=${PAGE_ACCESS_TOKEN}`);
+        const response = await axios.get(`https://graph.facebook.com/v21.0/me?access_token=${PAGE_ACCESS_TOKEN}`);
         return response.data ? 'Good' : 'Bad';
     } catch (error) {
         return 'Bad';
