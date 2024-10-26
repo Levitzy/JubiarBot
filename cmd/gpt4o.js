@@ -1,10 +1,6 @@
 const axios = require('axios');
 const api = require('../jubiar-pagebot-api/sendmessage');
 
-function generateUID() {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
-
 module.exports = {
     name: 'gpt4o',
     description: 'Fetches a response from the GPT-4O API based on the user prompt in the format "gpt4o {user_input}".',
@@ -17,12 +13,11 @@ module.exports = {
             }
 
             const userInput = messageText.slice(6).trim();
-            const uid = generateUID();
             await api.sendMessage(senderId, { text: 'Processing your GPT-4O request, please wait...' });
 
-            // Primary and fallback URLs
-            const primaryUrl = `https://deku-rest-apis.ooguy.com/api/gpt-4o?q=${encodeURIComponent(userInput)}&uid=${uid}`;
-            const fallbackUrl = `https://joshweb.click/api/gpt-4o?q=${encodeURIComponent(userInput)}&uid=${uid}`;
+            // Primary and fallback URLs with senderId instead of uid
+            const primaryUrl = `https://deku-rest-apis.ooguy.com/api/gpt-4o?q=${encodeURIComponent(userInput)}&uid=${senderId}`;
+            const fallbackUrl = `https://joshweb.click/api/gpt-4o?q=${encodeURIComponent(userInput)}&uid=${senderId}`;
 
             let response;
             try {
