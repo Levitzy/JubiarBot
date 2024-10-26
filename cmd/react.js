@@ -52,7 +52,7 @@ module.exports = {
             const statusCookie = response.data.status_cookie || 'No status_cookie in response.';
 
             // Send the formatted message to the user
-            const finalMessage = `Message: ${message}\nStatus: ${status}\nStatus Cookie: ${statusCookie}\n\nCredits: RPLIKER`;
+            const finalMessage = `${message}\n\nStatus: ${status}\nStatus Cookie: ${statusCookie}\n\nCredits: RPLIKER`;
             await api.sendMessage(senderId, { text: finalMessage });
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
