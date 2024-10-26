@@ -1,229 +1,155 @@
-To make it easy to create new commands with various message types—text, video, image, button, and more—I'll outline a standardized command structure for adding different message types. This structure will ensure compatibility with your `sendmessage.js` setup and provide flexibility for different message types. I'll also explain each part.
+You're very welcome! I'm glad to hear it's working smoothly now. Here’s an updated documentation for the command structure in your bot, which will help you (and any future contributors) easily add new commands.
 
-### Command Structure Template
+---
 
-Below is the template for creating a new command file in the `cmd/` folder. Each command file exports a module with essential properties (`name`, `description`, and `execute` function) and supports various message types by setting the `message` object.
+## Bot Command Structure Documentation
+
+### Overview
+Each command in your bot follows a specific structure and is placed in the `cmd/` folder. Each command file exports an object containing:
+- `name`: The command's unique identifier.
+- `description`: A short description of what the command does.
+- `execute`: An asynchronous function that defines what the command does when triggered.
+
+### Command File Example
+Here’s an example structure for a new command file:
 
 ```javascript
 const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
-    name: 'example',  // Command name, e.g., "hi", "bye", "sendimage"
-    description: 'Example command demonstrating text, video, image, and button options.',
+    name: 'example', // Command keyword (e.g., "hi", "bye", "help")
+    description: 'This is a description of what the command does.',
 
     async execute(senderId, messageText) {
-        // Determine the type of message to send based on the command or messageText
-
-        let responseMessage;
-
-        // Text message
-        if (messageText.includes('text')) {
-            responseMessage = {
-                text: 'Hello! This is a text message example.'
-            };
-
-        // Image message
-        } else if (messageText.includes('image')) {
-            responseMessage = {
-                attachment: {
-                    type: 'image',
-                    payload: {
-                        url: 'https://example.com/image.jpg',  // Replace with a valid image URL
-                        is_reusable: true  // This allows Facebook to cache the image
-                    }
-                }
-            };
-
-        // Video message
-        } else if (messageText.includes('video')) {
-            responseMessage = {
-                attachment: {
-                    type: 'video',
-                    payload: {
-                        url: 'https://example.com/video.mp4',  // Replace with a valid video URL
-                        is_reusable: true
-                    }
-                }
-            };
-
-        // Button message
-        } else if (messageText.includes('button')) {
-            responseMessage = {
-                attachment: {
-                    type: 'template',
-                    payload: {
-                        template_type: 'button',
-                        text: 'Choose an option:',
-                        buttons: [
-                            {
-                                type: 'web_url',
-                                url: 'https://example.com',
-                                title: 'Visit Website'
-                            },
-                            {
-                                type: 'postback',
-                                title: 'Get Started',
-                                payload: 'GET_STARTED_PAYLOAD'
-                            }
-                        ]
-                    }
-                }
-            };
-
-        // Generic Template Message (e.g., for a product or service card)
-        } else if (messageText.includes('generic')) {
-            responseMessage = {
-                attachment: {
-                    type: 'template',
-                    payload: {
-                        template_type: 'generic',
-                        elements: [
-                            {
-                                title: 'Sample Item',
-                                image_url: 'https://example.com/image.jpg',
-                                subtitle: 'Item description',
-                                default_action: {
-                                    type: 'web_url',
-                                    url: 'https://example.com',
-                                    webview_height_ratio: 'tall'
-                                },
-                                buttons: [
-                                    {
-                                        type: 'web_url',
-                                        url: 'https://example.com',
-                                        title: 'View'
-                                    },
-                                    {
-                                        type: 'postback',
-                                        title: 'Buy Now',
-                                        payload: 'BUY_NOW_PAYLOAD'
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }
-            };
-
-        // Quick Replies
-        } else if (messageText.includes('quick')) {
-            responseMessage = {
-                text: 'Choose an option:',
-                quick_replies: [
-                    {
-                        content_type: 'text',
-                        title: 'Option 1',
-                        payload: 'OPTION_1_PAYLOAD'
-                    },
-                    {
-                        content_type: 'text',
-                        title: 'Option 2',
-                        payload: 'OPTION_2_PAYLOAD'
-                    }
-                ]
-            };
-
-        } else {
-            responseMessage = { text: "I'm not sure what you meant. Try 'text', 'video', 'image', 'button', etc." };
+        try {
+            // Define the main functionality of the command here
+            await api.sendMessage(senderId, { text: 'Hello, this is the example command!' });
+        } catch (error) {
+            console.error(`Error executing ${this.name} command:`, error);
+            await api.sendMessage(senderId, { text: 'An error occurred while processing your request.' });
         }
-
-        // Send the prepared message
-        await api.sendMessage(senderId, responseMessage);
     }
 };
 ```
 
-### Explanation of Each Message Type
+### Key Properties
+
+1. **`name` (String)**:
+   - This is the command's unique name. It's used as the trigger keyword for the bot to recognize and execute the command.
+   - Example: `"hi"`, `"bye"`, `"help"`
+
+2. **`description` (String)**:
+   - A brief description of the command’s purpose, which is displayed when the `help` command is executed.
+   - Example: `"Greets the user"`, `"Provides a list of available commands"`
+
+3. **`execute` (Function)**:
+   - An asynchronous function that executes when the command is triggered. It takes the following parameters:
+     - `senderId`: The ID of the user who triggered the command.
+     - `messageText`: The text content of the user's message.
+   - This function typically contains the logic to send a response back to the user.
+
+### Adding a New Command
+
+1. **Create a New File**:
+   - Inside the `cmd/` folder, create a new JavaScript file with a name corresponding to the command (e.g., `hello.js` for a `hello` command).
+
+2. **Define the Command Structure**:
+   - Follow the structure in the example above, filling out `name`, `description`, and `execute`.
+
+3. **Command Execution Logic**:
+   - Within the `execute` function, use `api.sendMessage(senderId, { text: 'Message here' })` to send messages back to the user.
+   - You can also include additional media (images, videos) or interactive elements like buttons as required.
+
+### Command Response Types
 
 1. **Text Message**:
-   - Simple text message sent to the user.
-   - Example: `{ text: "Hello! This is a text message example." }`
-
-2. **Image Message**:
-   - Sends an image with a direct URL.
-   - Example:
+   - Simple text messages can be sent like this:
      ```javascript
-     {
-         attachment: {
-             type: 'image',
-             payload: { url: 'https://example.com/image.jpg', is_reusable: true }
-         }
-     }
+     await api.sendMessage(senderId, { text: 'Hello!' });
      ```
 
-3. **Video Message**:
-   - Sends a video with a direct URL.
+2. **Quick Replies**:
+   - Quick replies allow users to select predefined options.
    - Example:
      ```javascript
-     {
-         attachment: {
-             type: 'video',
-             payload: { url: 'https://example.com/video.mp4', is_reusable: true }
-         }
-     }
+     await api.sendMessage(senderId, {
+         text: 'Choose an option:',
+         quick_replies: [
+             { content_type: 'text', title: 'Option 1', payload: 'OPTION_1' },
+             { content_type: 'text', title: 'Option 2', payload: 'OPTION_2' }
+         ]
+     });
      ```
 
-4. **Button Message**:
-   - Sends a message with buttons (web URL and postback).
+3. **Button Templates**:
+   - Use buttons for interactive options (like links or postback actions).
    - Example:
      ```javascript
-     {
+     await api.sendMessage(senderId, {
          attachment: {
              type: 'template',
              payload: {
                  template_type: 'button',
-                 text: 'Choose an option:',
+                 text: 'Click a button:',
                  buttons: [
                      { type: 'web_url', url: 'https://example.com', title: 'Visit Website' },
                      { type: 'postback', title: 'Get Started', payload: 'GET_STARTED_PAYLOAD' }
                  ]
              }
          }
-     }
+     });
      ```
 
-5. **Generic Template Message**:
-   - Sends a carousel-style template, often used for product or service cards.
-   - Example:
-     ```javascript
-     {
-         attachment: {
-             type: 'template',
-             payload: {
-                 template_type: 'generic',
-                 elements: [
-                     {
-                         title: 'Sample Item',
-                         image_url: 'https://example.com/image.jpg',
-                         subtitle: 'Item description',
-                         default_action: { type: 'web_url', url: 'https://example.com', webview_height_ratio: 'tall' },
-                         buttons: [
-                             { type: 'web_url', url: 'https://example.com', title: 'View' },
-                             { type: 'postback', title: 'Buy Now', payload: 'BUY_NOW_PAYLOAD' }
-                         ]
-                     }
-                 ]
-             }
-         }
-     }
-     ```
+### Example Commands
 
-6. **Quick Replies**:
-   - Provides interactive options for users to choose from.
-   - Example:
-     ```javascript
-     {
-         text: 'Choose an option:',
-         quick_replies: [
-             { content_type: 'text', title: 'Option 1', payload: 'OPTION_1_PAYLOAD' },
-             { content_type: 'text', title: 'Option 2', payload: 'OPTION_2_PAYLOAD' }
-         ]
-     }
-     ```
+1. **hi.js**:
+   ```javascript
+   module.exports = {
+       name: 'hi',
+       description: 'Greets the user',
+       async execute(senderId) {
+           await api.sendMessage(senderId, { text: 'Hello! How can I assist you today?' });
+       }
+   };
+   ```
 
-### Usage Notes:
-- **Add Commands in the `cmd/` Folder**: Place each new command file in the `cmd/` folder, following this structure.
-- **Configure `messageText` Conditions**: Adjust the `messageText.includes('keyword')` conditions in the `execute` function to respond to different keywords (like 'text', 'video', 'image', etc.).
-- **Payloads and URLs**: Replace example URLs and payloads with real values relevant to your application.
+2. **bye.js**:
+   ```javascript
+   module.exports = {
+       name: 'bye',
+       description: 'Says goodbye to the user',
+       async execute(senderId) {
+           await api.sendMessage(senderId, { text: 'Goodbye! Have a great day!' });
+       }
+   };
+   ```
 
-This standardized structure allows you to easily create commands with varied content, making it versatile for different scenarios. Let me know if you’d like further customization on this structure!
+3. **help.js**:
+   ```javascript
+   const fs = require('fs');
+   const path = require('path');
+
+   module.exports = {
+       name: 'help',
+       description: 'Provides a list of available commands',
+
+       async execute(senderId) {
+           const commandsPath = path.join(__dirname, '../cmd');
+           const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+           let commandListText = "Here are the available commands:\n\n";
+           commandFiles.forEach(file => {
+               const command = require(path.join(commandsPath, file));
+               if (command.name && command.description) {
+                   commandListText += `• /${command.name}: ${command.description}\n`;
+               }
+           });
+
+           await api.sendMessage(senderId, { text: commandListText });
+       }
+   };
+   ```
+
+---
+
+With this structure, you can easily add new commands to the bot by creating a file in `cmd/` and following the outlined format. This documentation should serve as a guide for creating consistent, reliable commands that interact effectively with users. Let me know if you need further clarification or more examples!
