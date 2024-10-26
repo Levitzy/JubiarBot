@@ -3,25 +3,9 @@ const fs = require('fs');
 const path = require('path');
 const FormData = require('form-data');
 
-const tokenFilePath = path.join(__dirname, '../token.json');
-
-// Load tokens from token.json
-function loadTokens() {
-    const data = fs.readFileSync(tokenFilePath, 'utf8');
-    return JSON.parse(data).tokens;
-}
-
-// Get a random token from token.json
-function getRandomToken() {
-    const tokens = loadTokens();
-    if (tokens.length === 0) {
-        throw new Error("No tokens available in token.json.");
-    }
-    return tokens[Math.floor(Math.random() * tokens.length)];
-}
+const PAGE_ACCESS_TOKEN = path.join(__dirname, '../token.txt');
 
 module.exports.sendMessage = async (recipientId, message) => {
-    const PAGE_ACCESS_TOKEN = getRandomToken();
     const url = `https://graph.facebook.com/v21.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`;
 
     try {

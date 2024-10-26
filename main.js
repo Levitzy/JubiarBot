@@ -9,35 +9,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const VERIFY_TOKEN = 'jubiar';
-const tokenFilePath = path.join(__dirname, 'token.json');
+const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, 'token.txt'), 'utf8').trim();
 
 app.use(bodyParser.json());
-
-// Load tokens from token.json
-function loadTokens() {
-    if (!fs.existsSync(tokenFilePath)) {
-        fs.writeFileSync(tokenFilePath, JSON.stringify({ tokens: [] }, null, 2));
-    }
-    const data = fs.readFileSync(tokenFilePath, 'utf8');
-    return JSON.parse(data).tokens;
-}
-
-// Save a new token to token.json
-function saveToken(newToken) {
-    const tokens = loadTokens();
-    tokens.push(newToken);
-    fs.writeFileSync(tokenFilePath, JSON.stringify({ tokens }, null, 2));
-}
-
-// API to add a new page bot token
-app.post('/api/addToken', (req, res) => {
-    const { token } = req.body;
-    if (!token) {
-        return res.status(400).json({ message: 'Token is required.' });
-    }
-    saveToken(token);
-    res.status(200).json({ message: 'Token added successfully.' });
-});
 
 let commands = {};
 

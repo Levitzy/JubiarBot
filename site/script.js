@@ -2,7 +2,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const darkModeToggle = document.getElementById('darkModeToggle');
     const restartBotButton = document.getElementById('restartBotButton');
-    const addTokenForm = document.getElementById('addTokenForm');
     const body = document.body;
 
     restartBotButton.addEventListener('click', () => {
@@ -58,21 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
             commandList.appendChild(div);
         });
     }
-    
-    addTokenForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const pageToken = document.getElementById('pageToken').value;
-
-        try {
-            const response = await axios.post('/api/addToken', {
-                token: pageToken
-            });
-            alert(response.data.message);
-        } catch (error) {
-            alert('Error adding token: ' + error.response.data.message);
-        }
-    });
-
     // Fetch bot info for bot name, token status, and command list
     axios.get('/api/info')
         .then(response => {

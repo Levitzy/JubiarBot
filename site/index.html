@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +12,7 @@
     <div class="container">
         <main class="card">
             <header class="card-header">
-                <h1>Welcome to Jubiar PageBot</h1>
+                <h1>Jubiar PageBot</h1>
                 <p>Connected to Facebook Messenger and ready to serve commands.</p>
             </header>
             <section class="card-body">
@@ -33,14 +32,14 @@
                     <strong id="totalCommands">Loading...</strong>
                 </div>
             </section>
-            <footer class="card-footer">
+            <footer class="card-footer">?
                 <div class="status-indicator">
                     <div class="pulse" aria-hidden="true"></div>
                     <span>Bot Active</span>
                 </div>
             </footer>
         </main>
-        <section class="command-list">
+        <section class="command-list card">
             <header class="card-header">
                 <h2>Command List</h2>
             </header>
@@ -48,19 +47,12 @@
                 <!-- Command items will be dynamically inserted here -->
             </div>
         </section>
-        <section class="add-token-form">
-        <h2>Add New Page Bot Token</h2>
-        <form id="addTokenForm">
-            <input type="text" id="pageToken" placeholder="Enter Page Access Token" required>
-            <button type="submit">Submit Token</button>
-        </form>
-    </section>
     </div>
-    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
+    <button id="darkModeToggle" class="fab" aria-label="Toggle dark mode">
         <span aria-hidden="true">🌙</span>
     </button>
-    <button id="restartBotButton" class="restart-bot-button" aria-label="Restart Bot">
-        <span>Restart Bot</span>
+    <button id="restartBotButton" class="fab restart-bot" aria-label="Restart Bot">
+        <span aria-hidden="true">🔄</span>
     </button>
     <script src="script.js"></script>
 </body>
