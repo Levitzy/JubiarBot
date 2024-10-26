@@ -5,7 +5,7 @@ const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
     name: 'art',
-    description: 'Generates and sends an art image based on the user prompt in the format "art {your prompt}".',
+    description: 'Fetches an AI-generated image based on the prompt in the format "art {prompt}".',
 
     async execute(senderId, messageText) {
         try {
@@ -15,35 +15,35 @@ module.exports = {
             }
 
             const userInput = messageText.slice(4).trim();
-            await api.sendMessage(senderId, { text: 'Creating your art, please wait...' });
+            await api.sendMessage(senderId, { text: 'Creating your art piece, please wait...' });
 
-            // API URL for image generation
-            const imageUrl = `https://joshweb.click/api/art?prompt=${encodeURIComponent(userInput)}`;
+            // API URL for the art generation
+            const url = `https://joshweb.click/api/art?prompt=${encodeURIComponent(userInput)}`;
 
-            // Download the image from the API
-            const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-            const imageBuffer = Buffer.from(response.data, 'binary');
+            // Download the image
+            const response = await axios.get(url, { responseType: 'arraybuffer' });
+            const imagePath = path.join(__dirname, `../downloads/art_${Date.now()}.jpg`);
+            fs.writeFileSync(imagePath, response.data);
 
-            // Define a temporary file path
-            const filePath = path.join(__dirname, `${senderId}_art_image.jpg`);
-            fs.writeFileSync(filePath, imageBuffer);
-
-            // Send the image as an attachment
+            // Send the downloaded image to the user
             await api.sendMessage(senderId, {
                 attachment: {
                     type: 'image',
                     payload: {
-                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`,
+                        url: `file://${imagePath}`,
                         is_reusable: true
                     }
                 }
             });
 
-            // Clean up the temporary file after sending
-            fs.unlinkSync(filePath);
+            // Clean up the file after sending
+            fs.unlink(imagePath, (err) => {
+                if (err) console.error('Error deleting the image file:', err);
+            });
+
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
-            await api.sendMessage(senderId, { text: 'An error occurred while generating your art image.' });
+            await api.sendMessage(senderId, { text: 'An error occurred while processing your art request.' });
         }
     },
 };
