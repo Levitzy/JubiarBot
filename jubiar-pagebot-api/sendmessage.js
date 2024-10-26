@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const FormData = require('form-data');
 
-const PAGE_ACCESS_TOKEN = path.join(__dirname, '../token.txt');
+// Read PAGE_ACCESS_TOKEN from token.txt
+const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, '../token.txt'), 'utf8').trim();
 
 module.exports.sendMessage = async (recipientId, message) => {
     const url = `https://graph.facebook.com/v21.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`;
