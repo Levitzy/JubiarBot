@@ -17,11 +17,20 @@ module.exports = {
             const userInput = messageText.slice(4).trim();
             await api.sendMessage(senderId, { text: 'Creating your art piece, please wait...' });
 
-            // API URL for the art generation
-            const url = `https://joshweb.click/api/art?prompt=${encodeURIComponent(userInput)}`;
+            // Primary and fallback URLs
+            const primaryUrl = `https://joshweb.click/api/art?prompt=${encodeURIComponent(userInput)}`;
+            const fallbackUrl = `https://deku-rest-apis.ooguy.com/api/art?prompt=${encodeURIComponent(userInput)}`;
 
-            // Download the image
-            const response = await axios.get(url, { responseType: 'arraybuffer' });
+            let response;
+            try {
+                // Attempt to fetch from the primary URL
+                response = await axios.get(primaryUrl, { responseType: 'arraybuffer' });
+            } catch (primaryError) {
+                // Notify the user of fallback and attempt the fallback URL
+                await api.sendMessage(senderId, { text: 'Primary server unavailable, trying an alternative server...' });
+                response = await axios.get(fallbackUrl, { responseType: 'arraybuffer' });
+            }
+
             const imagePath = `art_${Date.now()}.jpg`;
 
             // Write the image to a temporary file
@@ -33,7 +42,7 @@ module.exports = {
                     type: 'image',
                     payload: {}
                 },
-                filedata: fs.createReadStream(imagePath) // Corrected to use fs.createReadStream
+                filedata: fs.createReadStream(imagePath) // Send as a file stream
             });
 
             // Clean up the file after sending
