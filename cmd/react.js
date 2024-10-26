@@ -23,7 +23,7 @@ module.exports = {
             }
 
             // Send a message to the user indicating processing has started
-            await api.sendMessage(senderID, { text: "Processing reaction...\n\nCredite: RPLIKER" });
+            await api.sendMessage(senderID, { text: 'Processing reaction...\n\nCredite: RPLIKER' });
             // Set up headers and data for the request
             const headers = {
                 'User-Agent': 'okhttp/3.9.1',
