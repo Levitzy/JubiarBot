@@ -40,7 +40,9 @@ module.exports = {
             await api.sendMessage(senderId, {
                 attachment: {
                     type: 'image',
-                    payload: {}
+                    payload: {
+                        is_reusable: true
+                    }
                 },
                 filedata: fs.createReadStream(imagePath) // Send as a file stream
             });
