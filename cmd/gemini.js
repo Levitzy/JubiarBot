@@ -24,9 +24,12 @@ module.exports = {
             const response = await axios.get(url);
 
             // Extract the "gemini" value from the response
-            const geminiMessage = response.data.gemini || 'No response from Gemini.';
+            let geminiMessage = response.data.gemini || 'No response from Gemini.';
 
-            // Send the response back to the user
+            // Remove unwanted characters (*, **)
+            geminiMessage = geminiMessage.replace(/(\*|\*\*)/g, '');
+
+            // Send the cleaned response back to the user
             await api.sendMessage(senderId, { text: geminiMessage });
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
