@@ -1,8 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     const darkModeToggle = document.getElementById('darkModeToggle');
     const restartButton = document.getElementById('restartBot');
-    restartButton.addEventListener('click', restartBot);
     const body = document.body;
+    const restartBotButton = document.getElementById('restartBotButton');
+    
+    restartBotButton.addEventListener('click', () => {
+        axios.post('/api/restartBot')
+            .then(response => {
+                alert(response.data.message); // Show success message
+                location.reload(); // Reload the page to fetch updated command list
+            })
+            .catch(error => {
+                alert('Error restarting the bot: ' + error.message); // Show error message
+            });
+    });
+});
+
 
     // Check for saved dark mode preference
     if (localStorage.getItem('darkMode') === 'enabled') {
@@ -36,19 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error(message);
     }
     
-    function restartBot() {
-        axios.post('/api/restartBot')
-            .then(response => {
-                console.log('Bot restarted successfully');
-                alert('Bot has been restarted successfully!');
-                // Optionally, you can refresh the page or update the bot info
-                location.reload();
-            })
-            .catch(error => {
-                console.error('Error restarting bot:', error);
-                alert('Failed to restart the bot. Please try again.');
-            });
-    }
     function updateCommandList(commands) {
         const commandList = document.getElementById('commandList');
         commandList.innerHTML = '';
