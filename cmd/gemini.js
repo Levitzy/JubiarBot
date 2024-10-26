@@ -26,8 +26,8 @@ module.exports = {
             // Extract the "gemini" value from the response
             let geminiMessage = response.data.gemini || 'No response from Gemini.';
 
-            // Remove unwanted characters (*, **)
-            geminiMessage = geminiMessage.replace(/(\*|\*\*)/g, '');
+            // Remove unwanted characters: **, *, and ,
+            geminiMessage = geminiMessage.replace(/[*]| |(\*\*)/g, '');
 
             // Send the cleaned response back to the user
             await api.sendMessage(senderId, { text: geminiMessage });
