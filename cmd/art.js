@@ -1,5 +1,6 @@
 const axios = require('axios');
-const fs = require('fs').promises;
+const fs = require('fs');
+const fsp = require('fs').promises;
 const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
@@ -24,7 +25,7 @@ module.exports = {
             const imagePath = `art_${Date.now()}.jpg`;
 
             // Write the image to a temporary file
-            await fs.writeFile(imagePath, response.data);
+            await fsp.writeFile(imagePath, response.data);
 
             // Send the downloaded image to the user
             await api.sendMessage(senderId, {
@@ -32,11 +33,11 @@ module.exports = {
                     type: 'image',
                     payload: {}
                 },
-                filedata: fs.createReadStream(imagePath) // Send as a file stream
+                filedata: fs.createReadStream(imagePath) // Corrected to use fs.createReadStream
             });
 
             // Clean up the file after sending
-            await fs.unlink(imagePath);
+            await fsp.unlink(imagePath);
 
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
