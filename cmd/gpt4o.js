@@ -20,16 +20,15 @@ module.exports = {
             const uid = generateUID();
             await api.sendMessage(senderId, { text: 'Processing your GPT-4O request, please wait...' });
 
-            // Primary API URL
+            // Primary and fallback URLs
             const primaryUrl = `https://deku-rest-apis.ooguy.com/api/gpt-4o?q=${encodeURIComponent(userInput)}&uid=${uid}`;
-            // Fallback API URL
             const fallbackUrl = `https://joshweb.click/api/gpt-4o?q=${encodeURIComponent(userInput)}&uid=${uid}`;
 
             let response;
             try {
                 response = await axios.get(primaryUrl);
             } catch (primaryError) {
-                console.warn('Primary domain failed, attempting fallback domain.');
+                await api.sendMessage(senderId, { text: 'The primary service is currently unavailable, switching to an alternative server...' });
                 response = await axios.get(fallbackUrl);
             }
 

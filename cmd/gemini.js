@@ -15,16 +15,15 @@ module.exports = {
             const userInput = messageText.slice(7).trim();
             await api.sendMessage(senderId, { text: 'Processing your Gemini request, please wait...' });
 
-            // Primary API URL
+            // Primary and fallback URLs
             const primaryUrl = `https://deku-rest-apis.ooguy.com/gemini?prompt=${encodeURIComponent(userInput)}`;
-            // Fallback API URL
             const fallbackUrl = `https://joshweb.click/gemini?prompt=${encodeURIComponent(userInput)}`;
 
             let response;
             try {
                 response = await axios.get(primaryUrl);
             } catch (primaryError) {
-                console.warn('Primary domain failed, attempting fallback domain.');
+                await api.sendMessage(senderId, { text: 'The primary service is currently unavailable, switching to an alternative server...' });
                 response = await axios.get(fallbackUrl);
             }
 
