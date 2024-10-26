@@ -1,9 +1,9 @@
+// script.js
 document.addEventListener('DOMContentLoaded', () => {
     const darkModeToggle = document.getElementById('darkModeToggle');
-    const restartButton = document.getElementById('restartBot');
-    const body = document.body;
     const restartBotButton = document.getElementById('restartBotButton');
-    
+    const body = document.body;
+
     restartBotButton.addEventListener('click', () => {
         axios.post('/api/restartBot')
             .then(response => {
@@ -14,8 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Error restarting the bot: ' + error.message); // Show error message
             });
     });
-});
-
 
     // Check for saved dark mode preference
     if (localStorage.getItem('darkMode') === 'enabled') {
@@ -33,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             darkModeToggle.textContent = '🌙';
         }
     });
-    
+
     function updateInfo(id, value) {
         const element = document.getElementById(id);
         element.textContent = value;
@@ -48,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         console.error(message);
     }
-    
+
     function updateCommandList(commands) {
         const commandList = document.getElementById('commandList');
         commandList.innerHTML = '';

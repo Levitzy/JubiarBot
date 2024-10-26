@@ -16,6 +16,15 @@ const BOT_NAME = 'JubiarBot';
 
 app.use(bodyParser.json());
 
+async function checkPageAccessToken() {
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v12.0/me?access_token=${PAGE_ACCESS_TOKEN}`);
+        return response.data ? 'Good' : 'Bad';
+    } catch (error) {
+        return 'Bad';
+    }
+}
+
 let commands = {};
 
 // API endpoint to restart the bot
