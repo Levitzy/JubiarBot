@@ -20,16 +20,17 @@ module.exports = {
             // API URL for music generation
             const url = `https://joshweb.click/api/aimusic?prompt=${encodeURIComponent(userInput)}`;
 
-            // Request the audio URL
+            // Request to get the audio URL from data.audio
             const response = await axios.get(url);
             const audioUrl = response.data.audio;
 
+            // Check if audio URL is available
             if (!audioUrl) {
                 await api.sendMessage(senderId, { text: 'No audio was generated for this prompt.' });
                 return;
             }
 
-            // Download the audio file
+            // Download the audio file from the provided URL
             const audioResponse = await axios.get(audioUrl, { responseType: 'arraybuffer' });
             const audioPath = `aimusic_${Date.now()}.mp3`;
 
