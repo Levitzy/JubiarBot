@@ -1,6 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
-const fsp = require('fs').promises;
 const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
@@ -20,7 +18,7 @@ module.exports = {
             // API URL for music generation
             const url = `https://joshweb.click/api/aimusic?prompt=${encodeURIComponent(userInput)}`;
 
-            // Request to get the audio URL from data.audio
+            // Fetch the audio URL from the API response
             const response = await axios.get(url);
             const audioUrl = response.data.audio;
 
@@ -30,24 +28,16 @@ module.exports = {
                 return;
             }
 
-            // Download the audio file from the provided URL
-            const audioResponse = await axios.get(audioUrl, { responseType: 'arraybuffer' });
-            const audioPath = `aimusic_${Date.now()}.mp3`;
-
-            // Save the audio file locally
-            await fsp.writeFile(audioPath, audioResponse.data);
-
-            // Send the downloaded audio file to the user
+            // Send the audio file directly as an attachment
             await api.sendMessage(senderId, {
                 attachment: {
-                    type: 'audio',
-                    payload: {}
-                },
-                filedata: fs.createReadStream(audioPath) // Send as a file stream
+                    type: "audio",
+                    payload: {
+                        url: audioUrl,
+                        is_reusable: true
+                    }
+                }
             });
-
-            // Clean up the file after sending
-            await fsp.unlink(audioPath);
 
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
