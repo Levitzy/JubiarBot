@@ -2,22 +2,22 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const api = require('../jubiar-pagebot-api/sendmessage');
-const { deleteMessage } = require('../jubiar-pagebot-api/deletemessage');
+const { deleteMessage } = require('../extra/deletemessage');
 
 module.exports = {
     name: 'shoti',
     description: 'Fetches a video using the Shoti API, downloads it, and sends it as a video attachment.',
 
     async execute(senderId, messageText) {
-        let processingMessageId = null;
+        let processingMessageId;
 
         try {
             if (messageText.trim() === this.name) {
-                // Send "Processing" message and capture its ID
+                // Send "Processing..." message and capture the message ID
                 const processingMessage = await api.sendMessage(senderId, {
                     text: 'Processing your video, please wait...'
                 });
-                processingMessageId = processingMessage.message_id; // Capture the message ID
+                processingMessageId = processingMessage.message_id;
 
                 // Request the video details
                 const response = await axios.get('https://shoti.kenliejugarap.com/getvideo.php?apikey=shoti-0763839a3b9de35ae3da73816d087d57d1bbae9f8997d9ebd0da823850fb80917e69d239a7f7db34b4d139a5e3b02658ed26f49928e5ab40f57c9798c9ae7290c536d8378ea8b01399723aaf35f62fae7c58d08f04');
@@ -54,7 +54,7 @@ module.exports = {
                         }
                     });
 
-                    // Delete the "Processing" message
+                    // Delete the "Processing..." message
                     if (processingMessageId) {
                         await deleteMessage(processingMessageId);
                     }
