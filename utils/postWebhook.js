@@ -1,3 +1,5 @@
+const { setOnlineIndicator } = require('../jubiar-pagebot-api/bot');
+
 module.exports = (app, commands) => {
     app.post('/webhook', async (req, res) => {
         const body = req.body;
@@ -7,16 +9,17 @@ module.exports = (app, commands) => {
                 const webhookEvent = entry.messaging[0];
                 const senderId = webhookEvent.sender.id;
 
+                // Trigger the online indicator when a message is received
+                await setOnlineIndicator(senderId);
+
                 if (webhookEvent.message && webhookEvent.message.text) {
                     const receivedText = webhookEvent.message.text.trim();
                     const [commandName] = receivedText.split(' ');
 
-                    // Check for a matching command by name and execute it
                     const command = commands[commandName.toLowerCase()];
                     if (command) {
                         await command.execute(senderId, receivedText);
                     } else {
-                        // Optional: Log unknown command or notify the user
                         await api.sendMessage(senderId, { text: "Unrecognized command. Type 'help' for available options." });
                     }
                 }
