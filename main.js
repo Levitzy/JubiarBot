@@ -3,9 +3,9 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const loadCommands = require('./utils/loadCommand');
-const getWebhook = require('./utils/getWebhook');
-const postWebhook = require('./utils/postWebhook');
+const loadCommands = require('/utils/loadCommand');
+const getWebhook = require('/utils/getWebhook');
+const postWebhook = require('/utils/postWebhook');
 const { sendMessage } = require('jubiar-pagebot-api/sendmessage');
 const { replyMessage } = require('jubiar-pagebot-api/replyMessage');
 
