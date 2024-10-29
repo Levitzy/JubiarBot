@@ -1,44 +1,40 @@
+const axios = require('axios');
 const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
-    name: 'spotify', // Command trigger: "spotify {user_input}"
-    description: 'Fetches Spotify audio based on user input.',
+    name: 'spotify',
+    description: 'Fetches a Spotify song link based on user input.',
 
     async execute(senderId, messageText) {
         try {
-            // Extract the search query from the command, removing 'spotify' from the input
-            const query = messageText.slice(8).trim(); // Adjusts for "spotify " prefix
-
-            if (!query) {
-                await api.sendMessage(senderId, { text: 'Please provide a search term after "spotify".' });
+            // Extract the search query by removing the command keyword
+            const args = messageText.split(' ').slice(1);
+            if (args.length === 0) {
+                await api.sendMessage(senderId, { text: 'Please specify a song name after the command.' });
                 return;
             }
 
-            // Build the API URL with the user input
-            const apiUrl = `https://joshweb.click/api/spotify2?q=${encodeURIComponent(query)}`;
+            // Fetch song data from the API
+            const { data } = await axios.get(`https://hiroshi-api.onrender.com/tiktok/spotify?search=${encodeURIComponent(args.join(' '))}`);
+            const link = data[0]?.download;
 
-            // Fetch the data from the Spotify API
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-
-            // Check if the data contains audio information
-            if (data && data.audio_url) {
-                // Send the audio as a response
+            // Check if a link was retrieved
+            if (link) {
                 await api.sendMessage(senderId, {
                     attachment: {
                         type: 'audio',
                         payload: {
-                            url: data.audio_url // Replace with actual audio URL from API response
+                            url: link
                         }
                     }
                 });
             } else {
-                // Inform the user if no audio was found
-                await api.sendMessage(senderId, { text: `No audio found for "${query}". Try a different search term.` });
+                await api.sendMessage(senderId, { text: 'Sorry, I could not find the song. Please try a different search term.' });
             }
+
         } catch (error) {
-            console.error(`Error executing ${this.name} command:`, error);
-            await api.sendMessage(senderId, { text: 'An error occurred while fetching audio from Spotify.' });
+            console.error(`Error executing spotify command:`, error);
+            await api.sendMessage(senderId, { text: 'An error occurred while processing your Spotify request.' });
         }
     }
 };
