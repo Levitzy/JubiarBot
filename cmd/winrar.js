@@ -1,7 +1,7 @@
-const api = require('../jubiar-pagebot-api/sendmessage');
-const fs = require('fs');
 const axios = require('axios');
-const path = require('path');
+const fs = require('fs');
+const fsp = require('fs').promises;
+const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
     name: 'winrar',
@@ -12,7 +12,10 @@ module.exports = {
         const apiUrl = `https://winrar.kenliejugarap.com/gen?user=${userInput}&license=${userInput}`;
 
         try {
-            // Make the API call
+            // Inform the user that the process is starting
+            await api.sendMessage(senderId, { text: 'Generating your WinRAR license key, please wait...' });
+
+            // Make the API call to generate the license key
             const response = await axios.get(apiUrl);
             const keyData = response.data.key;
 
@@ -20,18 +23,22 @@ module.exports = {
             await api.sendMessage(senderId, { text: keyData });
 
             // Create a temporary rarreg.key file with the license data
-            const tempFilePath = path.join(__dirname, 'rarreg.key');
-            fs.writeFileSync(tempFilePath, keyData, 'utf8');
+            const tempFilePath = `rarreg_${Date.now()}.key`;
+            await fsp.writeFile(tempFilePath, keyData);
 
-            // Send the rarreg.key file to the user
+            // Send the rarreg.key file as a stream
             await api.sendMessage(senderId, {
                 attachment: {
                     type: 'file',
                     payload: {
                         is_reusable: true
                     }
-                }
+                },
+                filedata: fs.createReadStream(tempFilePath) // Send as a file stream
             });
+
+            // Clean up the file after sending
+            await fsp.unlink(tempFilePath);
 
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
