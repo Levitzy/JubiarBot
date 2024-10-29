@@ -3,7 +3,7 @@ const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
     name: 'spotify',
-    description: 'Fetches a Spotify song link based on user input.',
+    description: 'Fetches a Spotify song link and details based on user input.',
 
     async execute(senderId, messageText) {
         try {
@@ -16,10 +16,13 @@ module.exports = {
 
             // Fetch song data from the API
             const { data } = await axios.get(`https://hiroshi-api.onrender.com/tiktok/spotify?search=${encodeURIComponent(args.join(' '))}`);
-            const link = data[0]?.download;
+            const songData = data[0];
+            const link = songData?.download;
+            const name = songData?.name;
 
             // Check if a link was retrieved
             if (link) {
+                // Send the audio file first
                 await api.sendMessage(senderId, {
                     attachment: {
                         type: 'audio',
@@ -27,6 +30,11 @@ module.exports = {
                             url: link
                         }
                     }
+                });
+
+                // Send additional information about the song
+                await api.sendMessage(senderId, {
+                    text: `Name: ${name || 'Unknown'}\nDownload URL: ${link}`
                 });
             } else {
                 await api.sendMessage(senderId, { text: 'Sorry, I could not find the song. Please try a different search term.' });
