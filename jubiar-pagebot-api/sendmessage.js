@@ -1,7 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const FormData = require('form-data');
 const { sendTypingIndicator } = require('../extra/sendTypingIndicator'); // Adjust path as needed
 
 // Read PAGE_ACCESS_TOKEN from token.txt
@@ -14,22 +13,14 @@ module.exports.sendMessage = async (recipientId, message) => {
         // Start typing indicator
         await sendTypingIndicator(recipientId, 'typing_on');
 
-        if (message.filedata) {
-            const formData = new FormData();
-            formData.append('recipient', JSON.stringify({ id: recipientId }));
-            formData.append('message', JSON.stringify({ attachment: message.attachment }));
-            formData.append('filedata', message.filedata);
+        // Define data structure for either text or attachment message
+        const data = {
+            recipient: { id: recipientId },
+            message: message.attachment ? { attachment: message.attachment } : { text: message.text }
+        };
 
-            await axios.post(url, formData, {
-                headers: formData.getHeaders()
-            });
-        } else {
-            const data = {
-                recipient: { id: recipientId },
-                message: message.attachment ? { attachment: message.attachment } : { text: message.text }
-            };
-            await axios.post(url, data);
-        }
+        // Send the message
+        await axios.post(url, data);
 
         console.log('Message sent successfully.');
     } catch (error) {
