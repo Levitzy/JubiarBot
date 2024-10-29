@@ -16,7 +16,7 @@ module.exports = {
                 return;
             }
 
-            const loginUrl = 'https://n.facebook.com/login.php';
+            const loginUrl = 'https://m.facebook.com/login.php';
             const ua = "Mozilla/5.0 (Linux; Android 4.1.2; GT-I8552 Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36";
 
             // Start session
