@@ -21,8 +21,6 @@ module.exports.sendMessage = async (recipientId, message) => {
 
         // Send the message
         await axios.post(url, data);
-
-        console.log('Message sent successfully.');
     } catch (error) {
         console.error('Error sending message:', error.response ? error.response.data : error.message);
     } finally {
