@@ -1,58 +1,44 @@
-// cmd/npm.js
-const https = require('https');
-const { sendTextMessage } = require('../jubiar-pagebot-api/sendmessage');
+const api = require('../jubiar-pagebot-api/sendmessage');
+const axios = require('axios');
 
 module.exports = {
-  name: 'npm',
-  description: 'Fetch information about an npm package from the Popcat API',
+    name: 'npm',
+    description: 'Fetches information about an NPM package',
 
-  execute: async (userId, args) => {
-    if (!args.length) {
-      return sendTextMessage(userId, "Please provide a package name to search for.");
-    }
-
-    const packageName = args.join(" ");
-    const url = `https://api.popcat.xyz/npm?q=${encodeURIComponent(packageName)}`;
-
-    https.get(url, (response) => {
-      let data = '';
-
-      // Collect the data
-      response.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      // Process the data
-      response.on('end', () => {
+    async execute(senderId, messageText) {
         try {
-          const packageInfo = JSON.parse(data);
+            // Extract the package name from messageText
+            const packageName = messageText.split(' ')[1];
+            if (!packageName) {
+                await api.sendMessage(senderId, { text: 'Please specify an NPM package name.' });
+                return;
+            }
 
-          if (packageInfo.error) {
-            sendTextMessage(userId, `No results found for "${packageName}".`);
-          } else {
-            const formattedMessage = `
-*Package Name:* ${packageInfo.name}
-*Version:* ${packageInfo.version}
-*Description:* ${packageInfo.description}
-*Author:* ${packageInfo.author}
-*Repository:* ${packageInfo.repository || "N/A"}
-*Downloads:* ${packageInfo.downloads}
-*Maintainers:* ${packageInfo.maintainers}
-*Last Updated:* ${packageInfo.last_updated}
+            // Fetch package information from PopCat API
+            const response = await axios.get(`https://api.popcat.xyz/npm?q=${packageName}`);
+            const data = response.data;
 
-*Link:* ${packageInfo.link}
+            // Format the message
+            const message = `
+*Package Name*: ${data.name}
+*Version*: ${data.version}
+*Description*: ${data.description}
+*Author*: ${data.author || 'N/A'}
+*License*: ${data.license}
+*Links*:
+- [NPM](https://www.npmjs.com/package/${data.name})
+- [Repository](${data.repository || 'N/A'})
+- [Homepage](${data.homepage || 'N/A'})
+
+*Downloads per Week*: ${data.downloads}
+*Maintainers*: ${data.maintainers.join(', ') || 'N/A'}
             `;
 
-            sendTextMessage(userId, formattedMessage.trim());
-          }
+            // Send the formatted message
+            await api.sendMessage(senderId, { text: message });
         } catch (error) {
-          console.error(error);
-          sendTextMessage(userId, "An error occurred while fetching package data.");
+            console.error(`Error executing npm command:`, error);
+            await api.sendMessage(senderId, { text: 'An error occurred while fetching the NPM package data.' });
         }
-      });
-    }).on('error', (error) => {
-      console.error(error);
-      sendTextMessage(userId, "An error occurred while trying to fetch data.");
-    });
-  },
+    }
 };
