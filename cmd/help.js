@@ -1,12 +1,13 @@
 const api = require('../jubiar-pagebot-api/sendmessage');
+const replyApi = require('../jubiar-pagebot-api/replyMessage');
 
 module.exports = {
     name: 'help',
     description: 'See available commands',
 
-    async execute(senderId) {
+    async execute(senderId, messageText, messageId) {
         try {
-            // Load all available commands from the cmd folder
+            // Message content to list available commands
             const commandsPath = require('path').join(__dirname, '../cmd');
             const commandFiles = require('fs').readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -21,33 +22,8 @@ module.exports = {
                 }
             });
 
-            // Send the message with the list of commands
-            await api.sendMessage(senderId, {
-                text: commandListText
-            });
-
-            // Send an additional message with contact admin options
-         /* await api.sendMessage(senderId, {
-                attachment: {
-                    type: "template",
-                    payload: {
-                        template_type: "button",
-                        text: "Need further assistance? Contact an admin:",
-                        buttons: [
-                            {
-                                type: "web_url",
-                                url: "https://www.facebook.com/kennethfranciscoaceberos",
-                                title: "Contact Admin 1"
-                            },
-                            {
-                                type: "web_url",
-                                url: "https://www.facebook.com/wieginesalpocialechavez",
-                                title: "Contact Admin 2"
-                            }
-                        ]
-                    }
-                }
-            }); */
+            // Use replyMessage to respond directly to the triggering message
+            await replyApi.replyMessage(senderId, { text: commandListText }, messageId);
         } catch (error) {
             console.error("Error in help command:", error.message);
             await api.sendMessage(senderId, { text: "An error occurred while retrieving the commands." });
