@@ -8,16 +8,18 @@ module.exports = {
             const commandsPath = require('path').join(__dirname, '../cmd');
             const commandFiles = require('fs').readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-            let commandListText = "🤖 | Here are the available commands:\n\n";
-
+            // Build a beautifully formatted command list
+            let commandListText = "✨ *Available Commands* ✨\n\n";
             commandFiles.forEach(file => {
                 const command = require(require('path').join(commandsPath, file));
-                if (command.name && command.description) {
-                    commandListText += `• ${command.name}: ${command.description}\n`;
+                if (command.name) {
+                    commandListText += `➡️  *${command.name}*\n`;
                 } else {
-                    console.warn(`Command in file ${file} is missing a name or description.`);
+                    api.sendMessage(senderId, { text: `Command in file ${file} is missing a name.` });
                 }
             });
+
+            commandListText += "\nType any command to get started! 🚀";
 
             // Use replyMessage to respond directly to the triggering message
             await api.replyMessage(senderId, { text: commandListText }, messageId);
