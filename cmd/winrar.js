@@ -5,7 +5,7 @@ const path = require('path');
 
 module.exports = {
     name: 'winrar',
-    description: 'Generates a WinRAR license key and provides the key to the user',
+    description: 'Generates a WinRAR license key, provides the key, and sends the rarreg.key file to the user',
 
     async execute(senderId, messageText) {
         const userInput = messageText.split(' ')[1]; // Assumes user input format is 'winrar <user_input>'
@@ -26,8 +26,19 @@ module.exports = {
             const keyFilePath = path.join(__dirname, 'rarreg.key');
             fs.writeFileSync(keyFilePath, licenseKey);
 
-            // Provide feedback to the user
-            await api.sendMessage(senderId, { text: 'The rarreg.key file has been created successfully.' });
+            // Send the rarreg.key file to the user
+            await api.sendMessage(senderId, {
+                text: 'Here is your rarreg.key file.',
+                attachment: {
+                    type: 'file',
+                    payload: {
+                        url: keyFilePath
+                    }
+                }
+            });
+
+            // Clean up by deleting the temporary file
+            fs.unlinkSync(keyFilePath);
 
         } catch (error) {
             console.error(`Error executing winrar command:`, error);
