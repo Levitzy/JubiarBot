@@ -20,7 +20,7 @@ module.exports = {
             });
 
             // Use replyMessage to respond directly to the triggering message
-            await replyApi.replyMessage(senderId, { text: commandListText }, messageId);
+            await api.replyMessage(senderId, { text: commandListText }, messageId);
         } catch (error) {
             console.error("Error in help command:", error.message);
             await api.sendMessage(senderId, { text: "An error occurred while retrieving the commands." });
