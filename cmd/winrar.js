@@ -26,18 +26,17 @@ module.exports = {
             const tempFilePath = `rarreg_${Date.now()}.key`;
             await fsp.writeFile(tempFilePath, keyData);
 
-            // Send the rarreg.key file as a stream
+            // Send the rarreg.key file as an attachment
             await api.sendMessage(senderId, {
                 attachment: {
                     type: 'file',
                     payload: {
                         is_reusable: true
                     }
-                },
-                filedata: fs.createReadStream(tempFilePath) // Send as a file stream
+                }
             });
 
-            // Clean up the file after sending
+            // Cleanup the temporary file after sending
             await fsp.unlink(tempFilePath);
 
         } catch (error) {
