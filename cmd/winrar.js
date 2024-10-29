@@ -7,9 +7,26 @@ module.exports = {
     description: 'Generates a WinRAR license key',
 
     async execute(senderId, messageText) {
-        // Check for user input; generate a random numeric string if none is provided
-        const userInput = messageText.trim() || Math.floor(Math.random() * 1000000).toString();
-        const apiUrl = `https://winrar.kenliejugarap.com/gen?user=${userInput}&license=${userInput}`;
+        let userInput = messageText.trim();
+        let nameForLicense;
+
+        // Check if user input is provided
+        if (userInput) {
+            nameForLicense = userInput;
+        } else {
+            // Fetch a random name if no user input is provided
+            try {
+                const randomUserResponse = await axios.get('https://randomuser.me/api/?results=1&inc=name');
+                const randomName = randomUserResponse.data.results[0].name;
+                nameForLicense = `${randomName.first} ${randomName.last}`;
+            } catch (error) {
+                console.error('Error fetching random name:', error);
+                await api.sendMessage(senderId, { text: 'Error generating a random name for the license.' });
+                return;
+            }
+        }
+
+        const apiUrl = `https://winrar.kenliejugarap.com/gen?user=${nameForLicense}&license=${nameForLicense}`;
 
         try {
             // Inform the user that the process is starting
