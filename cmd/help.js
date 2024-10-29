@@ -1,6 +1,3 @@
-const api = require('../jubiar-pagebot-api/sendmessage');
-const replyApi = require('../jubiar-pagebot-api/replyMessage');
-
 module.exports = {
     name: 'help',
     description: 'See available commands',

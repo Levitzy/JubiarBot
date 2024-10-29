@@ -1,5 +1,4 @@
 const axios = require('axios');
-const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
     name: 'gpt4o',

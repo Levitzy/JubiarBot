@@ -1,4 +1,3 @@
-const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
     name: 'bye',

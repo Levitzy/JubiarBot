@@ -6,6 +6,9 @@ const axios = require('axios');
 const loadCommands = require('./utils/loadCommand');
 const getWebhook = require('./utils/getWebhook');
 const postWebhook = require('./utils/postWebhook');
+const { sendMessage } = require('./jubiar-pagebot-api/sendmessage');
+const { replyMessage } = require('./jubiar-pagebot-api/replyMessage');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -15,6 +18,12 @@ const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, 'token.txt'), 'ut
 app.use(bodyParser.json());
 
 let commands = {};
+
+// Define api object with sendMessage and replyMessage
+api = {
+    sendMessage,
+    replyMessage
+};
 
 async function checkPageAccessToken() {
     try {

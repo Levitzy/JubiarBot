@@ -1,4 +1,3 @@
-const api = require('../jubiar-pagebot-api/sendmessage');
 const axios = require('axios');
 
 module.exports = {

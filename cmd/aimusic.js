@@ -1,6 +1,4 @@
 const axios = require('axios');
-const api = require('../jubiar-pagebot-api/sendmessage');
-
 module.exports = {
     name: 'aimusic',
     description: 'Fetches AI-generated music based on the prompt in the format "aimusic {prompt}".',

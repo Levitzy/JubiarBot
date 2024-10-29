@@ -1,7 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const api = require('../jubiar-pagebot-api/sendmessage');
 
 module.exports = {
     name: 'shoti',
