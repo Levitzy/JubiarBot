@@ -7,7 +7,8 @@ module.exports = {
     description: 'Generates a WinRAR license key',
 
     async execute(senderId, messageText) {
-        const userInput = messageText.trim();
+        // Check for user input; generate a random numeric string if none is provided
+        const userInput = messageText.trim() || Math.floor(Math.random() * 1000000).toString();
         const apiUrl = `https://winrar.kenliejugarap.com/gen?user=${userInput}&license=${userInput}`;
 
         try {
