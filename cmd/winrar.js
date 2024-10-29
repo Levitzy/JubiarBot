@@ -28,7 +28,7 @@ module.exports = {
                 attachment: {
                     type: 'file',
                     payload: {
-                        url: tempFilePath
+                        is_reusable: true
                     }
                 }
             });
