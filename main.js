@@ -98,4 +98,9 @@ app.post('/api/restartBot', (req, res) => {
 });
 
 getWebhook(app, VERIFY_TOKEN);
-app.use(express.static(path.join(_
+app.use(express.static(path.join(__dirname, 'site')));
+
+app.listen(PORT, async () => {
+    console.clear();
+    postWebhook(app, commands);
+});
