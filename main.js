@@ -17,7 +17,7 @@ const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, 'token.txt'), 'ut
 
 app.use(bodyParser.json());
 
-let commands = {};
+let commands = loadCommands(); // Load initial commands from files
 
 // Define api object with sendMessage and replyMessage
 api = {
@@ -36,54 +36,28 @@ async function checkPageAccessToken() {
     }
 }
 
-// Endpoint to add a new command dynamically
-app.post('/api/addCommand', async (req, res) => {
+// Temporary in-memory addition of commands
+app.post('/api/addCommand', (req, res) => {
     const { commandName, commandScript } = req.body;
 
     if (!commandName || !commandScript) {
         return res.status(400).json({ message: 'Command name and script are required.' });
     }
 
-    // Define the path for saving the new command
-    const commandsDir = path.join(__dirname, 'commands');
-    const commandPath = path.join(commandsDir, `${commandName}.js`);
-
-    // Ensure commands directory exists
-    if (!fs.existsSync(commandsDir)) {
-        fs.mkdirSync(commandsDir);
-    }
-
-    // Write the command script to a new file with a basic template
-    const template = `
-    module.exports = {
-        name: '${commandName}',
-        description: 'Dynamically added command ${commandName}',
-        execute(api, message) {
-            ${commandScript}
-        }
+    // Add the command directly to the in-memory commands object
+    commands[commandName] = {
+        name: commandName,
+        description: `Dynamically added command ${commandName}`,
+        execute: new Function('api', 'message', commandScript)
     };
-    `;
-    
-    try {
-        fs.writeFileSync(commandPath, template.trim());
 
-        // Reload the commands to apply the new command
-        commands = loadCommands();
-
-        res.status(201).json({ message: `Command '${commandName}' added successfully.` });
-    } catch (error) {
-        console.error('Failed to add new command:', error);
-        res.status(500).json({ message: 'Failed to add the command.' });
-    }
+    res.status(201).json({ message: `Command '${commandName}' added temporarily.` });
 });
 
 app.get('/api/info', async (req, res) => {
     const { status: accessTokenStatus, botName } = await checkPageAccessToken();
-    if (Object.keys(commands).length === 0) {
-        commands = loadCommands();
-    }
-
     const commandNames = Object.keys(commands);
+    
     res.json({
         botName,
         accessTokenStatus,
@@ -94,7 +68,7 @@ app.get('/api/info', async (req, res) => {
 
 app.post('/api/restartBot', (req, res) => {
     try {
-        commands = loadCommands();
+        commands = loadCommands(); // Reload commands from files only
         res.status(200).json({ message: 'Bot restarted successfully.' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to restart the bot.' });
@@ -106,6 +80,5 @@ app.use(express.static(path.join(__dirname, 'site')));
 
 app.listen(PORT, async () => {
     console.clear();
-    commands = loadCommands();
     postWebhook(app, commands);
 });
