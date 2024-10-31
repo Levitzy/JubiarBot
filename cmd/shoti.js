@@ -50,7 +50,7 @@ module.exports = {
 
                     // Send formatted message with credits
                     await api.sendMessage(senderId, {
-                        text: `${videoTitle}\n${tiktokUrl}\n\nCredits: Kenlie`
+                        text: `${videoTitle}\n\n${tiktokUrl}\n\nCredits: Kenlie`
                     });
 
                     fs.unlinkSync(tempFilePath);
