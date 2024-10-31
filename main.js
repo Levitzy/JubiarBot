@@ -36,6 +36,31 @@ async function checkPageAccessToken() {
     }
 }
 
+// Endpoint to add a new command dynamically
+app.post('/api/addCommand', async (req, res) => {
+    const { commandName, commandScript } = req.body;
+
+    if (!commandName || !commandScript) {
+        return res.status(400).json({ message: 'Command name and script are required.' });
+    }
+
+    // Define the path where the new command will be saved
+    const commandPath = path.join(__dirname, 'commands', `${commandName}.js`);
+
+    // Write the command script to a new file
+    try {
+        fs.writeFileSync(commandPath, commandScript);
+
+        // Reload the commands
+        commands = loadCommands();
+
+        res.status(201).json({ message: `Command '${commandName}' added successfully.` });
+    } catch (error) {
+        console.error('Failed to add new command:', error);
+        res.status(500).json({ message: 'Failed to add the command.' });
+    }
+});
+
 app.get('/api/info', async (req, res) => {
     const { status: accessTokenStatus, botName } = await checkPageAccessToken();
     if (Object.keys(commands).length === 0) {
