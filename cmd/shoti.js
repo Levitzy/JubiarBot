@@ -14,11 +14,12 @@ module.exports = {
                 });
 
                 // Request the video details
-                const response = await axios.get('https://shoti.kenliejugarap.com/getvideo.php?apikey=shoti-0763839a3b9de35ae3da73816d087d57d1bbae9f8997d9ebd0da823850fb80917e69d239a7f7db34b4d139a5e3b02658ed26f49928e5ab40f57c9798c9ae7290c536d8378ea8b01399723aaf35f62fae7c58d08f04');
+                const response = await axios.get('https://shoti.kenliejugarap.com/getvideo.php?apikey=shoti-7eb71049889365e4d57c63fcb3e1d5e1bb80a178e4016bb48df704b0ed4f95798cb464105ae55c064bebb5d2470beed4c077a7bcf5f4b9673ecaaef349530bea2375588713cc819677428b042e9d665c85977c68cc');
 
                 if (response.data.status) {
                     const videoUrl = response.data.videoDownloadLink;
                     const videoTitle = response.data.title;
+                    const tiktokUrl = response.data.tiktokUrl; // New data field from the API
                     const tempFilePath = path.join(__dirname, "shoti.mp4");
 
                     // Download and save the video
@@ -36,9 +37,8 @@ module.exports = {
                         writer.on('error', reject);
                     });
 
-                    // Send text with the video attachment
+                    // Send video attachment
                     await api.sendMessage(senderId, {
-                        text: `${videoTitle}\n\nCreated by Jubiar`,
                         attachment: {
                             type: 'video',
                             payload: {
@@ -46,6 +46,11 @@ module.exports = {
                                 is_reusable: true
                             }
                         }
+                    });
+
+                    // Send formatted message with credits
+                    await api.sendMessage(senderId, {
+                        text: `${videoTitle}\n${tiktokUrl}\n\nCredits: Kenlie`
                     });
 
                     fs.unlinkSync(tempFilePath);
