@@ -44,14 +44,30 @@ app.post('/api/addCommand', async (req, res) => {
         return res.status(400).json({ message: 'Command name and script are required.' });
     }
 
-    // Define the path where the new command will be saved
-    const commandPath = path.join(__dirname, 'commands', `${commandName}.js`);
+    // Define the path for saving the new command
+    const commandsDir = path.join(__dirname, 'commands');
+    const commandPath = path.join(commandsDir, `${commandName}.js`);
 
-    // Write the command script to a new file
+    // Ensure commands directory exists
+    if (!fs.existsSync(commandsDir)) {
+        fs.mkdirSync(commandsDir);
+    }
+
+    // Write the command script to a new file with a basic template
+    const template = `
+    module.exports = {
+        name: '${commandName}',
+        description: 'Dynamically added command ${commandName}',
+        execute(api, message) {
+            ${commandScript}
+        }
+    };
+    `;
+    
     try {
-        fs.writeFileSync(commandPath, commandScript);
+        fs.writeFileSync(commandPath, template.trim());
 
-        // Reload the commands
+        // Reload the commands to apply the new command
         commands = loadCommands();
 
         res.status(201).json({ message: `Command '${commandName}' added successfully.` });
