@@ -54,8 +54,17 @@ app.post('/api/addCommand', (req, res) => {
                         text: 'Processing your request, please wait...'
                     });
 
-                    // Run the custom command script
-                    await new Function('api', 'senderId', 'messageText', commandScript)(api, senderId, messageText);
+                    // Run the custom command script with enhanced error handling
+                    const dynamicFunction = new Function('api', 'senderId', 'messageText', `
+                        try {
+                            ${commandScript}
+                        } catch (error) {
+                            console.error('Error in command script:', error);
+                            api.sendMessage(senderId, { text: 'There was an error in the command script.' });
+                        }
+                    `);
+
+                    await dynamicFunction(api, senderId, messageText);
                 }
             } catch (error) {
                 console.error(`Error executing command '${commandName}':`, error);
@@ -89,9 +98,4 @@ app.post('/api/restartBot', (req, res) => {
 });
 
 getWebhook(app, VERIFY_TOKEN);
-app.use(express.static(path.join(__dirname, 'site')));
-
-app.listen(PORT, async () => {
-    console.clear();
-    postWebhook(app, commands);
-});
+app.use(express.static(path.join(_
