@@ -1,56 +1,47 @@
 const axios = require('axios');
-const { replyMessage } = require('../replyMessage');
 
 module.exports = {
     name: 'npm',
-    description: 'Get information about an npm package',
+    description: 'Search for an npm package',
 
     async execute(senderId, messageText, messageId) {
         try {
-            // Extract package name from message text by slicing after the command prefix
-            const packageName = messageText.slice(4).trim();
-            if (!packageName) {
-                // If no package name is provided, prompt the user for correct usage
-                await replyMessage(senderId, { text: 'Please provide a package name. Usage: npm <package-name>' }, messageId);
+            // Extract user input by slicing off first 4 characters (i.e., "npm ")
+            const userInput = messageText.slice(4).trim();
+
+            // Check if user provided input
+            if (!userInput) {
+                await api.replyMessage(senderId, { text: "Please specify an npm package to search for." }, messageId);
                 return;
             }
 
-            // Fetch package information from the API
-            const apiUrl = `https://api.popcat.xyz/npm?q=${encodeURIComponent(packageName)}`;
-            const response = await axios.get(apiUrl);
+            // Make the API request
+            const response = await axios.get(`https://api.popcat.xyz/npm?q=${encodeURIComponent(userInput)}`);
             const packageInfo = response.data;
 
-            // Check if the package exists or if there's an error in the response
+            // Check if package info is returned
             if (!packageInfo || packageInfo.error) {
-                await replyMessage(senderId, { text: `Package not found: ${packageName}` }, messageId);
+                await api.replyMessage(senderId, { text: "Package not found." }, messageId);
                 return;
             }
 
-            // Build the response message with the package details
-            const message = `✨ *${packageInfo.name}* ✨
+            // Build response message with package details
+            const packageText = `📦 *${packageInfo.name}* (${packageInfo.version})
 
 ` +
-                `*Version*: ${packageInfo.version}
+                `📝 *Description*: ${packageInfo.description}
 ` +
-                `*Description*: ${packageInfo.description}
+                `👤 *Author*: ${packageInfo.author}
 ` +
-                `*Author*: ${packageInfo.author}
+                `⭐ *Stars*: ${packageInfo.stars}
 ` +
-                `*Repository*: ${packageInfo.repo || 'Not available'}
-` +
-                `*Downloads*: ${packageInfo.downloads}
-` +
-                `*Maintainers*: ${packageInfo.maintainers.join(', ')}
+                `🔗 *Link*: ${packageInfo.url}`;
 
-` +
-                `Learn more: ${packageInfo.links.npm}`;
-
-            // Reply with the package information
-            await replyMessage(senderId, { text: message }, messageId);
+            // Send package information back to user
+            await api.replyMessage(senderId, { text: packageText }, messageId);
         } catch (error) {
-            // Log the error and notify the user that an error occurred
-            console.error('Error fetching npm package information:', error.message);
-            await replyMessage(senderId, { text: 'An error occurred while fetching package information. Please try again later.' }, messageId);
+            console.error("Error in npm command:", error.message);
+            await api.sendMessage(senderId, { text: "An error occurred while searching for the npm package." });
         }
     }
 };
