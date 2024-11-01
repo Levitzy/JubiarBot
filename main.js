@@ -17,8 +17,9 @@ const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, 'token.txt'), 'ut
 
 app.use(bodyParser.json());
 
-let commands = loadCommands();
+let commands = loadCommands(); // Load initial commands from files
 
+// Define api object with sendMessage and replyMessage
 api = {
     sendMessage,
     replyMessage
@@ -35,51 +36,10 @@ async function checkPageAccessToken() {
     }
 }
 
-// Temporary in-memory addition of commands in a structured format
-app.post('/api/addCommand', (req, res) => {
-    const { commandName, commandScript } = req.body;
-
-    if (!commandName || !commandScript) {
-        return res.status(400).json({ message: 'Command name and script are required.' });
-    }
-
-    // Define a structured format for the command
-    commands[commandName] = {
-        name: commandName,
-        description: `Dynamically added command ${commandName}`,
-        async execute(senderId, messageText) {
-            try {
-                if (messageText.trim() === this.name) {
-                    await api.sendMessage(senderId, {
-                        text: 'Processing your request, please wait...'
-                    });
-
-                    // Run the custom command script with enhanced error handling
-                    const dynamicFunction = new Function('api', 'senderId', 'messageText', `
-                        try {
-                            ${commandScript}
-                        } catch (error) {
-                            console.error('Error in command script:', error);
-                            api.sendMessage(senderId, { text: 'There was an error in the command script.' });
-                        }
-                    `);
-
-                    await dynamicFunction(api, senderId, messageText);
-                }
-            } catch (error) {
-                console.error(`Error executing command '${commandName}':`, error);
-                await api.sendMessage(senderId, { text: 'An error occurred while executing the command. Please try again later.' });
-            }
-        }
-    };
-
-    res.status(201).json({ message: `Command '${commandName}' added temporarily.` });
-});
-
 app.get('/api/info', async (req, res) => {
     const { status: accessTokenStatus, botName } = await checkPageAccessToken();
     const commandNames = Object.keys(commands);
-
+    
     res.json({
         botName,
         accessTokenStatus,
@@ -90,7 +50,7 @@ app.get('/api/info', async (req, res) => {
 
 app.post('/api/restartBot', (req, res) => {
     try {
-        commands = loadCommands();
+        commands = loadCommands(); // Reload commands from files only
         res.status(200).json({ message: 'Bot restarted successfully.' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to restart the bot.' });
