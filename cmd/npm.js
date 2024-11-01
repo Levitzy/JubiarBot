@@ -20,12 +20,15 @@ module.exports = {
             const response = await axios.get(`https://api.popcat.xyz/npm?q=${encodeURIComponent(packageName)}`);
             const data = response.data;
 
+            // Handle keywords - API returns it as a string
+            const keywords = data.keywords || 'None';
+
             // Format the response
             const packageInfo = `📦 *${data.name}*\n\n` +
                 `📝 *Description:* ${data.description}\n\n` +
                 `👤 *Author:* ${data.author || 'Not specified'}\n` +
                 `📅 *Version:* ${data.version}\n` +
-                `⭐ *Keywords:* ${data.keywords?.join(', ') || 'None'}\n` +
+                `⭐ *Keywords:* ${keywords}\n` +
                 `🔗 *Homepage:* ${data.homepage || 'Not specified'}\n\n` +
                 `📥 *Installation:*\n\`\`\`npm install ${data.name}\`\`\``;
 
