@@ -17,14 +17,16 @@ module.exports = {
             const response = await axios.get(`https://api.popcat.xyz/npm?q=${packageName}`);
             const npmPackage = response.data;
 
-            // Format the response nicely
-            const message = `
+            // Check if npmPackage and its properties exist before accessing them
+            const message = npmPackage && npmPackage.name && npmPackage.links
+                ? `
 **Name:** ${npmPackage.name}
-**Description:** ${npmPackage.description}
-**Version:** ${npmPackage.version}
-**Author:** ${npmPackage.author.name}
+**Description:** ${npmPackage.description || 'No description available'}
+**Version:** ${npmPackage.version || 'No version available'}
+**Author:** ${npmPackage.author ? npmPackage.author.name : 'No author available'}
 **Link:** ${npmPackage.links.npm}
-            `;
+                `
+                : 'Package not found or invalid response from the API.';
 
             await api.sendMessage(senderId, { text: message });
         } catch (error) {
