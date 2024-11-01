@@ -2,36 +2,49 @@ const axios = require('axios');
 
 module.exports = {
     name: 'npm',
-    description: 'Fetches information about an npm package from api.popcat.xyz',
+    description: 'Get information about an NPM package',
 
-    async execute(senderId, messageText) {
+    async execute(senderId, messageText, messageId) {
         try {
-            // Extract the package name from the message text
-            const packageName = messageText.replace('npm ', ''); 
-
+            // Extract the package name from the message
+            const packageName = messageText.replace('npm', '').trim();
+            
             if (!packageName) {
-                await api.sendMessage(senderId, { text: 'Please provide a package name. Example: `npm axios`' });
+                await api.replyMessage(senderId, {
+                    text: "Please provide a package name. Example: npm express"
+                }, messageId);
                 return;
             }
 
-            const response = await axios.get(`https://api.popcat.xyz/npm?q=${packageName}`);
-            const npmPackage = response.data;
+            // Make request to PopCat API
+            const response = await axios.get(`https://api.popcat.xyz/npm?q=${encodeURIComponent(packageName)}`);
+            const data = response.data;
 
-            // Check if npmPackage and its properties exist before accessing them
-            const message = npmPackage && npmPackage.name && npmPackage.links
-                ? `
-**Name:** ${npmPackage.name}
-**Description:** ${npmPackage.description || 'No description available'}
-**Version:** ${npmPackage.version || 'No version available'}
-**Author:** ${npmPackage.author ? npmPackage.author.name : 'No author available'}
-**Link:** ${npmPackage.links.npm}
-                `
-                : 'Package not found or invalid response from the API.';
+            // Format the response
+            const packageInfo = `📦 *${data.name}*\n\n` +
+                `📝 *Description:* ${data.description}\n\n` +
+                `👤 *Author:* ${data.author || 'Not specified'}\n` +
+                `📅 *Version:* ${data.version}\n` +
+                `⭐ *Keywords:* ${data.keywords?.join(', ') || 'None'}\n` +
+                `🔗 *Homepage:* ${data.homepage || 'Not specified'}\n\n` +
+                `📥 *Installation:*\n\`\`\`npm install ${data.name}\`\`\``;
 
-            await api.sendMessage(senderId, { text: message });
+            // Send the formatted response
+            await api.replyMessage(senderId, {
+                text: packageInfo
+            }, messageId);
+
         } catch (error) {
-            console.error(`Error executing ${this.name} command:`, error);
-            await api.sendMessage(senderId, { text: 'An error occurred while fetching the npm package information.' });
+            console.error("Error in npm command:", error.message);
+            
+            // Send user-friendly error message
+            const errorMessage = error.response?.status === 404
+                ? "Package not found. Please check the package name and try again."
+                : "An error occurred while fetching the package information.";
+                
+            await api.replyMessage(senderId, {
+                text: errorMessage
+            }, messageId);
         }
     }
 };
