@@ -26,12 +26,22 @@ module.exports = {
             }
 
             // Build response message with package details
-            const packageText = `📦 *${packageInfo.name}* (${packageInfo.version})
+            const packageText = `📦 *${packageInfo.name}* (v${packageInfo.version})
 
 ` +
                 `📝 *Description*: ${packageInfo.description}
 ` +
-                `👤 *Author*: ${packageInfo.author}
+                `🔑 *Keywords*: ${packageInfo.keywords}
+` +
+                `👤 *Author*: ${packageInfo.author} (${packageInfo.author_email})
+` +
+                `🛠️ *Maintainers*: ${packageInfo.maintainers}
+` +
+                `📅 *Last Published*: ${packageInfo.last_published}
+` +
+                `📥 *Downloads This Year*: ${packageInfo.downloads_this_year}
+` +
+                `🔗 *Repository*: ${packageInfo.repository}
 ` +
                 `⭐ *Stars*: ${packageInfo.stars}
 ` +
