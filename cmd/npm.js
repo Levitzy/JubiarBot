@@ -7,8 +7,8 @@ module.exports = {
 
     async execute(senderId, messageText, messageId) {
         try {
-            // Extract package name from message text by removing the command prefix
-            const packageName = messageText.replace(/^npm\s+/i, '');
+            // Extract package name from message text by slicing after the command prefix
+            const packageName = messageText.slice(4).trim();
             if (!packageName) {
                 // If no package name is provided, prompt the user for correct usage
                 await replyMessage(senderId, { text: 'Please provide a package name. Usage: npm <package-name>' }, messageId);
@@ -27,13 +27,22 @@ module.exports = {
             }
 
             // Build the response message with the package details
-            const message = `✨ *${packageInfo.name}* ✨\n\n` +
-                `*Version*: ${packageInfo.version}\n` +
-                `*Description*: ${packageInfo.description}\n` +
-                `*Author*: ${packageInfo.author}\n` +
-                `*Repository*: ${packageInfo.repo || 'Not available'}\n` +
-                `*Downloads*: ${packageInfo.downloads}\n` +
-                `*Maintainers*: ${packageInfo.maintainers.join(', ')}\n\n` +
+            const message = `✨ *${packageInfo.name}* ✨
+
+` +
+                `*Version*: ${packageInfo.version}
+` +
+                `*Description*: ${packageInfo.description}
+` +
+                `*Author*: ${packageInfo.author}
+` +
+                `*Repository*: ${packageInfo.repo || 'Not available'}
+` +
+                `*Downloads*: ${packageInfo.downloads}
+` +
+                `*Maintainers*: ${packageInfo.maintainers.join(', ')}
+
+` +
                 `Learn more: ${packageInfo.links.npm}`;
 
             // Reply with the package information
