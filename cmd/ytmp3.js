@@ -35,7 +35,7 @@ module.exports = {
 
                 // Send title, note, and download link
                 await api.sendMessage(senderId, {
-                    text: `Title: ${data.title}\n\nNote: ${data.note}\nDownload: ${data.response}`
+                    text: `Title: ${data.title}\n\nNote: ${data.note}\n\nDownload: ${data.response}`
                 });
             } else {
                 await api.sendMessage(senderId, { text: 'Failed to retrieve the MP3 file. Please try again later.' });
