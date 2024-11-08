@@ -13,6 +13,9 @@ module.exports = {
         }
 
         try {
+            // Notify user of processing
+            await api.sendMessage(senderId, { text: 'Processing your MP3 download, please wait...' });
+
             // Make API call to get the MP3 file link
             const response = await axios.get(`https://apiv2.kenliejugarap.com/music?url=${youtubeUrl}`);
             const data = response.data;
@@ -30,17 +33,10 @@ module.exports = {
                     }
                 });
 
-                // Send title and note
+                // Send title, note, and download link
                 await api.sendMessage(senderId, {
-                    text: `Title: ${data.title}\n\n${data.note}`
+                    text: `Title: ${data.title}\n\nNote: ${data.note}\nDownload: ${data.response}`
                 });
-
-                // Optionally, send promotion message if it exists
-                if (data.promotion) {
-                    await api.sendMessage(senderId, {
-                        text: data.promotion
-                    });
-                }
             } else {
                 await api.sendMessage(senderId, { text: 'Failed to retrieve the MP3 file. Please try again later.' });
             }
