@@ -1,8 +1,9 @@
+const api = require('../jubiar-pagebot-api/sendmessage');
 const axios = require('axios');
 
 module.exports = {
     name: 'ttdl',
-    description: 'Downloads and sends the HD version of a TikTok video without watermark',
+    description: 'Provides a downloadable link for the HD version of a TikTok video without watermark',
 
     async execute(senderId, messageText) {
         try {
@@ -16,15 +17,9 @@ module.exports = {
             if (response.data && response.data.status === true) {
                 const hdPlayUrl = response.data.hd_play;
 
-                // Send the HD video to the user
+                // Send the HD video URL as a clickable link
                 await api.sendMessage(senderId, {
-                    attachment: {
-                        type: 'video',
-                        payload: {
-                            url: hdPlayUrl,
-                            is_reusable: true
-                        }
-                    }
+                    text: `Here is the HD video download link:\n${hdPlayUrl}`
                 });
             } else {
                 await api.sendMessage(senderId, { text: 'Failed to retrieve video. Please check the URL and try again.' });
