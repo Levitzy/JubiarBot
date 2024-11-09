@@ -106,13 +106,18 @@ module.exports = {
     name: 'sks',
     description: 'Decrypts the provided encrypted content using predefined keys.',
     async execute(senderId, messageText) {
-        const inputEncrypted = messageText.split(' ')[1]; // expecting input in format 'sks {input_encrypted}'
+        // Verify if the user has provided the {input_encrypted} argument
+        const inputEncrypted = messageText.split(' ')[1];
+        if (!inputEncrypted) {
+            await api.sendMessage(senderId, { text: "❌ Error: No encrypted content provided. Please use the command in the format 'sks {input_encrypted}'." });
+            return;
+        }
         
         try {
             const configData = JSON.parse(inputEncrypted);
             const { decryptedData } = decryptData(configData.d, configData.v);
             
-            const responseText = `🎉 Decrypted Content:\n${prettyPrintJSON(JSON.parse(decryptedData))}`;
+            const responseText = `🎉 Decrypted Content:\n${prettyPrintJSON(JSON.parse(decryptedData), 0).trim()}`;
             
             await api.sendMessage(senderId, { text: responseText });
         } catch (error) {
