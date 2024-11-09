@@ -121,9 +121,9 @@ module.exports = {
             // Send the decrypted result as a text message
             await api.sendMessage(senderId, { text: responseText });
 
-            // Define a temporary file with a fixed name
+            // Define a temporary file with a fixed name and UTF-8 encoding
             const tempFilePath = path.join(__dirname, "sks_decrypted_result.txt");
-            await fsp.writeFile(tempFilePath, responseText);
+            await fsp.writeFile(tempFilePath, responseText, { encoding: "utf8" });
 
             // Send the file as a stream
             await api.sendMessage(senderId, {
