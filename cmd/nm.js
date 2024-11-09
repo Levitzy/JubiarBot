@@ -112,20 +112,22 @@ module.exports = {
     description: 'Decrypts encrypted configuration data provided by the user.',
     async execute(senderId, messageText) {
         try {
-            // Check if encrypted content is provided
-            if (!messageText || messageText.trim() === '') {
-                await api.sendMessage(senderId, { text: 'Please provide the encrypted content to process.' });
+            // Extract the encrypted content from the messageText, removing the command name
+            const encryptedContent = messageText.replace('nm ', '').trim();
+
+            // Check if the user provided the required encrypted content
+            if (!encryptedContent) {
+                await api.sendMessage(senderId, { text: 'Please provide the encrypted content after the /nm command.' });
                 return;
             }
 
-            // Notify user of processing start
-            await api.sendMessage(senderId, { text: 'Processing your encrypted content, please wait...' });
+            // Send a "processing" message before decryption starts
+            await api.sendMessage(senderId, { text: 'Processing your encrypted content. Please wait...' });
 
-            // Decrypt and parse provided encrypted content
             const nmDecryptor = new NmDecryptor();
-            const resultMessage = nmDecryptor.handleNm([messageText], false);
+            const resultMessage = nmDecryptor.handleNm([encryptedContent], false);
 
-            // Send the decrypted and parsed configuration
+            // Send the decryption result to the user
             await api.sendMessage(senderId, { text: resultMessage });
         } catch (error) {
             console.error(`Error executing nm command:`, error);
