@@ -1,6 +1,5 @@
 const api = require('../jubiar-pagebot-api/sendmessage');
 const crypto = require('crypto');
-const fs = require('fs');
 
 class TnlDecryptor {
   constructor() {
@@ -82,14 +81,16 @@ module.exports = {
   async execute(senderId, messageText) {
     const decryptor = new TnlDecryptor();
 
-    // Check if user provided encrypted content
+    // Extract encrypted content, assuming it's after the command keyword
     const encryptedContent = messageText.replace('tnl ', '').trim();
+
+    // Check if the user provided the encrypted content
     if (!encryptedContent) {
-      await api.sendMessage(senderId, { text: 'Please provide the encrypted content after the command.' });
+      await api.sendMessage(senderId, { text: 'Please provide the encrypted content after the tnl command.' });
       return;
     }
 
-    // Process the decryption
+    // Proceed with decryption if content is provided
     const decryptedMessage = decryptor.decrypt(encryptedContent);
 
     try {
