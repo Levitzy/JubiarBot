@@ -76,6 +76,32 @@ function decryptData(data, version) {
     throw new Error("❌ No Valid Key Found For Decryption.");
 }
 
+function prettyPrintJSON(data, indent = 0) {
+    const indentation = ' '.repeat(indent);
+    let result = '';
+    
+    if (Array.isArray(data)) {
+        result += `${indentation}- [${data.join(", ")}]\n`;
+    } else if (typeof data === 'object' && data !== null) {
+        for (const [key, value] of Object.entries(data)) {
+            if (key === "message") continue;
+            if (typeof value === 'object' && value !== null) {
+                result += `${indentation}🔑 ${capitalizeFirst(key)}:\n`;
+                result += prettyPrintJSON(value, indent + 4);
+            } else {
+                result += `${indentation}🔑 ${capitalizeFirst(key)}: ${value}\n`;
+            }
+        }
+    } else {
+        result += `${indentation}${data}\n`;
+    }
+    return result;
+}
+
+function capitalizeFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 module.exports = {
     name: 'sks',
     description: 'Decrypts the provided encrypted content using predefined keys.',
@@ -85,7 +111,8 @@ module.exports = {
         try {
             const configData = JSON.parse(inputEncrypted);
             const { decryptedData, successfulKey } = decryptData(configData.d, configData.v);
-            const responseText = `✅ Successfully Decrypted Using Key: ${successfulKey}\nDecrypted Content: ${decryptedData}`;
+            
+            const responseText = `✅ Successfully Decrypted Using The Key: ${successfulKey}\n🎉 Decrypted Content:\n${prettyPrintJSON(JSON.parse(decryptedData))}`;
             
             await api.sendMessage(senderId, { text: responseText });
         } catch (error) {
