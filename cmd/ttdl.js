@@ -3,7 +3,7 @@ const axios = require('axios');
 
 module.exports = {
     name: 'ttdl',
-    description: 'Downloads and sends a TikTok video in HD without watermark.',
+    description: 'Downloads and sends a TikTok video in HD without watermark. If the video is too large, sends the download link.',
 
     async execute(senderId, messageText) {
         try {
@@ -25,7 +25,7 @@ module.exports = {
                 const hdVideoUrl = response.data.hd_play;
 
                 try {
-                    // Attempt to send the HD video as an attachment
+                    // Attempt to send the HD video to the user
                     await api.sendMessage(senderId, {
                         attachment: {
                             type: 'video',
@@ -36,20 +36,20 @@ module.exports = {
                         }
                     });
 
-                    // Send a follow-up message confirming the video has been sent
-                    await api.sendMessage(senderId, { text: 'Your video has been sent successfully!' });
+                    // Send a follow-up message after successfully sending the video
+                    await api.sendMessage(senderId, { text: 'Here is your video! Let me know if there’s anything else you need.' });
 
                 } catch (error) {
-                    // If there's an error due to file size, provide the URL instead
+                    // Check if the error is due to the file size limit
                     if (error.message.includes('Attachment size exceeds allowable limit')) {
-                        await api.sendMessage(senderId, {
-                            text: 'The video is too large to be sent directly. Please download it using this link:',
-                            url: hdVideoUrl
-                        });
+                        // Send the video URL if file size exceeds limit
+                        await api.sendMessage(senderId, { text: `The video is too large to send directly. You can download it here: ${hdVideoUrl}` });
                     } else {
-                        throw error; // Re-throw if it's an unknown error
+                        // Send a generic error message for other issues
+                        throw error;
                     }
                 }
+
             } else {
                 // Handle the case where the API did not return a successful response
                 await api.sendMessage(senderId, { text: 'Failed to retrieve the video. Please check the URL or try again later.' });
