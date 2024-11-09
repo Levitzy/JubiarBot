@@ -10,7 +10,8 @@
     "axios": "latest",
     "body-parser": "latest",
     "express": "latest",
-    "form-data": "latest"
+    "form-data": "latest",
+    "crypto": "latest"
   },
   "keywords": [
     "facebook",
