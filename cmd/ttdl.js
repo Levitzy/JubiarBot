@@ -40,9 +40,8 @@ module.exports = {
                     await api.sendMessage(senderId, { text: 'Here is your video! Let me know if there’s anything else you need.' });
 
                 } catch (error) {
-                    // Check if the error is due to the file size limit
+                    // If the error is due to file size, send the URL instead of the video
                     if (error.message.includes('Attachment size exceeds allowable limit')) {
-                        // Send the video URL if file size exceeds limit
                         await api.sendMessage(senderId, { text: `The video is too large to send directly. You can download it here: ${hdVideoUrl}` });
                     } else {
                         // Send a generic error message for other issues
