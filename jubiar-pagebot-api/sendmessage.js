@@ -4,7 +4,9 @@ const path = require('path');
 const FormData = require('form-data');
 const splitMessage = require('../extra/splitMessage');  // Import splitMessage function
 
-const PAGE_ACCESS_TOKEN = fs.readFileSync(path.join(__dirname, '../token.txt'), 'utf8').trim();
+const config = require('../config.json');
+const PAGE_ACCESS_TOKEN = config.PAGE_ACCESS_TOKEN;
+
 
 const sendTypingIndicator = async (recipientId, action) => {
     const url = `https://graph.facebook.com/v11.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`;
