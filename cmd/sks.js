@@ -85,20 +85,16 @@ function prettyPrintJSON(data) {
         for (const [key, value] of Object.entries(data)) {
             if (key === "message") continue;
             if (typeof value === 'object' && value !== null) {
-                result += `🔑 ${capitalizeFirst(key)}:\n`;
+                result += `🔑 ${key.toLowerCase()}:\n`;
                 result += prettyPrintJSON(value);
             } else {
-                result += `🔑 ${capitalizeFirst(key)}: ${value}\n`;
+                result += `🔑 ${key.toLowerCase()}: ${value}\n`;
             }
         }
     } else {
         result += `${data}\n`;
     }
     return result;
-}
-
-function capitalizeFirst(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 module.exports = {
