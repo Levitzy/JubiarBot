@@ -14,23 +14,42 @@ module.exports = {
                 return;
             }
 
+            // Send a "processing" message
+            await api.sendMessage(senderId, { text: 'Processing your request, please wait...' });
+
             // Fetch the video data from the API
             const response = await axios.get(`https://api.kenliejugarap.com/tikwmbymarjhun/?url=${user_tiktok_url}&lang=en`);
 
             // Check if the API response was successful
             if (response.data.status && response.data.response === 'success') {
                 const hdVideoUrl = response.data.hd_play;
-                
-                // Send the HD video to the user
-                await api.sendMessage(senderId, {
-                    attachment: {
-                        type: 'video',
-                        payload: {
-                            url: hdVideoUrl,
-                            is_reusable: true
+
+                try {
+                    // Attempt to send the HD video as an attachment
+                    await api.sendMessage(senderId, {
+                        attachment: {
+                            type: 'video',
+                            payload: {
+                                url: hdVideoUrl,
+                                is_reusable: true
+                            }
                         }
+                    });
+
+                    // Send a follow-up message confirming the video has been sent
+                    await api.sendMessage(senderId, { text: 'Your video has been sent successfully!' });
+
+                } catch (error) {
+                    // If there's an error due to file size, provide the URL instead
+                    if (error.message.includes('Attachment size exceeds allowable limit')) {
+                        await api.sendMessage(senderId, {
+                            text: 'The video is too large to be sent directly. Please download it using this link:',
+                            url: hdVideoUrl
+                        });
+                    } else {
+                        throw error; // Re-throw if it's an unknown error
                     }
-                });
+                }
             } else {
                 // Handle the case where the API did not return a successful response
                 await api.sendMessage(senderId, { text: 'Failed to retrieve the video. Please check the URL or try again later.' });
