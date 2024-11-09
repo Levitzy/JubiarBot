@@ -82,8 +82,14 @@ module.exports = {
   async execute(senderId, messageText) {
     const decryptor = new TnlDecryptor();
 
-    // Assuming encrypted content follows right after the command
+    // Check if user provided encrypted content
     const encryptedContent = messageText.replace('tnl ', '').trim();
+    if (!encryptedContent) {
+      await api.sendMessage(senderId, { text: 'Please provide the encrypted content after the command.' });
+      return;
+    }
+
+    // Process the decryption
     const decryptedMessage = decryptor.decrypt(encryptedContent);
 
     try {
