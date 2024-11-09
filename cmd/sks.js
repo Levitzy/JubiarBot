@@ -76,24 +76,23 @@ function decryptData(data, version) {
     throw new Error("❌ No Valid Key Found For Decryption.");
 }
 
-function prettyPrintJSON(data, indent = 0) {
-    const indentation = ' '.repeat(indent);
+function prettyPrintJSON(data) {
     let result = '';
     
     if (Array.isArray(data)) {
-        result += `${indentation}- [${data.join(",")}]\n`;
+        result += `- [${data.join(",")}]\n`;
     } else if (typeof data === 'object' && data !== null) {
         for (const [key, value] of Object.entries(data)) {
             if (key === "message") continue;
             if (typeof value === 'object' && value !== null) {
-                result += `${indentation}🔑 ${capitalizeFirst(key)}:\n`;
-                result += prettyPrintJSON(value, indent + 4);
+                result += `🔑 ${capitalizeFirst(key)}:\n`;
+                result += prettyPrintJSON(value);
             } else {
-                result += `${indentation}🔑 ${capitalizeFirst(key)}: ${value}\n`;
+                result += `🔑 ${capitalizeFirst(key)}: ${value}\n`;
             }
         }
     } else {
-        result += `${indentation}${data}\n`;
+        result += `${data}\n`;
     }
     return result;
 }
@@ -106,18 +105,20 @@ module.exports = {
     name: 'sks',
     description: 'Decrypts the provided encrypted content using predefined keys.',
     async execute(senderId, messageText) {
-        // Verify if the user has provided the {input_encrypted} argument
         const inputEncrypted = messageText.split(' ')[1];
+        
         if (!inputEncrypted) {
             await api.sendMessage(senderId, { text: "❌ Error: No encrypted content provided. Please use the command in the format 'sks {input_encrypted}'." });
             return;
         }
+
+        await api.sendMessage(senderId, { text: "⏳ Processing your decryption request, please wait..." });
         
         try {
             const configData = JSON.parse(inputEncrypted);
             const { decryptedData } = decryptData(configData.d, configData.v);
             
-            const responseText = `🎉 Decrypted Content:\n${prettyPrintJSON(JSON.parse(decryptedData), 0).trim()}`;
+            const responseText = `🎉 Decrypted Content:\n${prettyPrintJSON(JSON.parse(decryptedData)).trim()}`;
             
             await api.sendMessage(senderId, { text: responseText });
         } catch (error) {
