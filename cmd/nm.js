@@ -15,7 +15,7 @@ class NmDecryptor {
     }
 
     // Parse configuration from JSON object, excluding the "Note" field
-    parseConfig(data) {
+    parseConfig(data, hideNote) {
         let result = "============== Configuration ==============\n\n";
 
         const payload = data.Payload;
@@ -76,7 +76,7 @@ class NmDecryptor {
     }
 
     // Handle decryption and JSON parsing
-    handleNm(encryptedContentsList) {
+    handleNm(encryptedContentsList, hideNote) {
         let message = "";
 
         encryptedContentsList.forEach(encryptedContent => {
@@ -85,7 +85,7 @@ class NmDecryptor {
                 const decryptedText = this.decryptAesEcb128(encryptedText);
                 let decryptedString = decryptedText.toString().trim();
 
-                // Extract JSON data if there is extraneous data
+                // Attempt to extract JSON data with regex if there is extraneous data
                 const jsonMatch = decryptedString.match(/{.*}/s);
                 if (jsonMatch) {
                     decryptedString = jsonMatch[0];
@@ -93,7 +93,7 @@ class NmDecryptor {
 
                 try {
                     const jsonObject = JSON.parse(decryptedString);
-                    message += this.parseConfig(jsonObject) + "\n\n";
+                    message += this.parseConfig(jsonObject, hideNote) + "\n\n";
                 } catch (error) {
                     message += `Error parsing decrypted JSON: ${error.message}\n\n`;
                 }
@@ -109,16 +109,16 @@ class NmDecryptor {
 
 module.exports = {
     name: 'nm',
-    description: 'Decrypts and parses encrypted configuration content.',
-
+    description: 'Decrypts encrypted configuration data provided by the user.',
     async execute(senderId, messageText) {
-        const nmDecryptor = new NmDecryptor();
-
-        // Assuming `encryptedContent` is passed in messageText in base64 format
-        const encryptedContentsList = [messageText];
-
-        const resultMessage = nmDecryptor.handleNm(encryptedContentsList);
-
-        await api.sendMessage(senderId, { text: resultMessage });
+        try {
+            const encryptedContent = messageText.replace('nm ', '').trim();
+            const nmDecryptor = new NmDecryptor();
+            const resultMessage = nmDecryptor.handleNm([encryptedContent], false);
+            await api.sendMessage(senderId, { text: resultMessage });
+        } catch (error) {
+            console.error(`Error executing nm command:`, error);
+            await api.sendMessage(senderId, { text: 'An error occurred while processing the encrypted content.' });
+        }
     }
 };
