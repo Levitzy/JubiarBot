@@ -1,57 +1,50 @@
 const api = require('../jubiar-pagebot-api/sendmessage');
-const axios = require('axios');
+const axios = require('axios'); // Make sure axios is installed for API requests
 
 module.exports = {
-    name: 'ttdl',
-    description: 'Downloads and sends a TikTok video in HD without watermark. If the video is too large, sends the download link.',
+    name: 'ttdl', // Command keyword
+    description: 'Downloads TikTok video without watermark and sends it as a video or a link if file size is too large',
 
     async execute(senderId, messageText) {
         try {
             // Extract the TikTok URL from the user's message
-            const user_tiktok_url = messageText.split(' ')[1]; // assuming the command format is 'ttdl <tiktok_url>'
-            if (!user_tiktok_url) {
-                await api.sendMessage(senderId, { text: 'Please provide a valid TikTok URL.' });
+            const userTikTokUrl = messageText.split(' ')[1]; // Assuming the command is followed by the URL
+            if (!userTikTokUrl) {
+                await api.sendMessage(senderId, { text: 'Please provide a TikTok URL.' });
                 return;
             }
 
-            // Send a "processing" message
-            await api.sendMessage(senderId, { text: 'Processing your request, please wait...' });
+            // Fetch video data from the API
+            const response = await axios.get(`https://api.kenliejugarap.com/tikwmbymarjhun/?url=${userTikTokUrl}&lang=en`);
+            const videoData = response.data;
 
-            // Fetch the video data from the API
-            const response = await axios.get(`https://api.kenliejugarap.com/tikwmbymarjhun/?url=${user_tiktok_url}&lang=en`);
+            if (videoData.status && videoData.response === 'success') {
+                const videoUrl = videoData.hd_play;
 
-            // Check if the API response was successful
-            if (response.data.status && response.data.response === 'success') {
-                const hdVideoUrl = response.data.hd_play;
+                // Attempt to send video; if too large, fallback to URL
+                const videoMessage = {
+                    attachment: {
+                        type: 'video',
+                        payload: {
+                            url: videoUrl,
+                            is_reusable: true
+                        }
+                    }
+                };
 
                 try {
-                    // Attempt to send the HD video to the user
-                    await api.sendMessage(senderId, {
-                        attachment: {
-                            type: 'video',
-                            payload: {
-                                url: hdVideoUrl,
-                                is_reusable: true
-                            }
-                        }
-                    });
-
-                    // Send a follow-up message after successfully sending the video
-                    await api.sendMessage(senderId, { text: 'Here is your video! Let me know if there’s anything else you need.' });
-
+                    await api.sendMessage(senderId, videoMessage);
                 } catch (error) {
-                    // If the error is due to file size, send the URL instead of the video
-                    if (error.message.includes('Attachment size exceeds allowable limit')) {
-                        await api.sendMessage(senderId, { text: `The video is too large to send directly. You can download it here: ${hdVideoUrl}` });
+                    if (error.message.includes("Attachment size exceeds allowable limit")) {
+                        // Send the video URL as a fallback
+                        await api.sendMessage(senderId, { text: `The video is too large to send directly. You can watch it here: ${videoUrl}` });
                     } else {
-                        // Send a generic error message for other issues
                         throw error;
                     }
                 }
-
             } else {
-                // Handle the case where the API did not return a successful response
-                await api.sendMessage(senderId, { text: 'Failed to retrieve the video. Please check the URL or try again later.' });
+                // Handle case where video data is not successfully retrieved
+                await api.sendMessage(senderId, { text: 'Could not retrieve the video. Please check the URL and try again.' });
             }
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
