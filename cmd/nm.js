@@ -111,18 +111,17 @@ module.exports = {
     name: 'nm',
     description: 'Decrypts encrypted configuration data provided by the user.',
     async execute(senderId, messageText) {
-        const encryptedContent = messageText.trim();
-
-        // Check if the user provided encrypted content
-        if (!encryptedContent) {
-            await api.sendMessage(senderId, { text: 'Please provide the encrypted content to process.' });
+        // Check if encrypted content is provided
+        if (!messageText || messageText.trim() === "") {
+            await api.sendMessage(senderId, { text: 'Please provide the encrypted content to decrypt.' });
             return;
         }
 
-        // Notify the user that processing is starting
-        await api.sendMessage(senderId, { text: 'Processing your encrypted content, please wait...' });
+        // Send processing message
+        await api.sendMessage(senderId, { text: 'Processing your request...' });
 
         try {
+            const encryptedContent = messageText.trim();
             const nmDecryptor = new NmDecryptor();
             const resultMessage = nmDecryptor.handleNm([encryptedContent], false);
             await api.sendMessage(senderId, { text: resultMessage });
