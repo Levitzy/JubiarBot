@@ -1,79 +1,96 @@
 const api = require('../jubiar-pagebot-api/sendmessage');
+const crypto = require('crypto');
+const fs = require('fs');
+
+class TnlDecryptor {
+  constructor() {
+    this.configEncPassword = 'B1m93p$$9pZcL9yBs0b$jJwtPM5VG@Vg';
+  }
+
+  // Decrypts the given encrypted content
+  decrypt(encryptedContent) {
+    const [saltEncoded, nonceEncoded, cipherEncoded] = encryptedContent.split('.');
+
+    // Decode each component from base64
+    const salt = Buffer.from(saltEncoded, 'base64');
+    const nonce = Buffer.from(nonceEncoded, 'base64');
+    const cipher = Buffer.from(cipherEncoded, 'base64');
+
+    // Extract cipher text and authentication tag
+    const cipherText = cipher.slice(0, cipher.length - 16); // without the last 16 bytes
+    const authTag = cipher.slice(cipher.length - 16);       // last 16 bytes are the auth tag
+
+    // Generate the key using PBKDF2
+    const PBKDF2key = this.PBKDF2KeyGen(this.configEncPassword, salt, 1000, 16);
+    if (!PBKDF2key) {
+      return 'Failed to generate PBKDF2 key.';
+    }
+
+    // Decrypt using AES-GCM
+    const decryptedResult = this.AESDecrypt(cipherText, PBKDF2key, nonce, authTag);
+    if (!decryptedResult) {
+      return 'Failed to decrypt AES.';
+    }
+
+    const unpaddedResult = this.removePadding(Buffer.from(decryptedResult));
+    const decryptedString = unpaddedResult.toString('utf8');
+
+    // Parse and format decrypted data
+    const regex = /<entry key="(.*?)">(.*?)<\/entry>/g;
+    let result = 'Anonymous Decrypting World\n\n';
+    let match;
+    while ((match = regex.exec(decryptedString)) !== null) {
+      result += `[ADW] [${match[1]}]= ${match[2]}\n`;
+    }
+    return result + '\n\nAnonymous Decrypting World';
+  }
+
+  // Removes PKCS#7 padding
+  removePadding(decryptedText) {
+    const paddingLength = decryptedText[decryptedText.length - 1];
+    return decryptedText.slice(0, decryptedText.length - paddingLength);
+  }
+
+  // Key generation using PBKDF2
+  PBKDF2KeyGen(password, salt, iterations, keyLen) {
+    try {
+      return crypto.pbkdf2Sync(password, salt, iterations, keyLen, 'sha256');
+    } catch (error) {
+      console.error('Error generating PBKDF2 key:', error);
+      return null;
+    }
+  }
+
+  // AES decryption using AES-GCM
+  AESDecrypt(ciphertext, key, nonce, authTag) {
+    try {
+      const decipher = crypto.createDecipheriv('aes-128-gcm', key, nonce);
+      decipher.setAuthTag(authTag);
+      const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+      return plaintext;
+    } catch (error) {
+      console.error('Error decrypting AES:', error);
+      return null;
+    }
+  }
+}
 
 module.exports = {
-    name: 'tnl',
-    description: 'Decrypts and displays TNL content, allowing copying of specific decrypted fields.',
-    
-    async execute(senderId, messageText) {
-        const encryptedContentsList = messageText.split('|'); // Assume contents are separated by "|"
-        const decryptedResults = encryptedContentsList.map(content => decrypt(content)).join('\n');
-        
-        // Send decrypted content as text response
-        await api.sendMessage(senderId, { text: decryptedResults });
-        
-        // Add button options for copying decrypted fields
-        await api.sendMessage(senderId, {
-            text: 'Options to copy decrypted fields:',
-            quick_replies: [
-                { content_type: 'text', title: 'Copy SSH Username', payload: 'COPY_SSH_USER' },
-                { content_type: 'text', title: 'Copy SSH Password', payload: 'COPY_SSH_PASS' },
-                { content_type: 'text', title: 'Copy SSH Server', payload: 'COPY_SSH_SERVER' },
-                { content_type: 'text', title: 'Copy SSH Port', payload: 'COPY_SSH_PORT' },
-                { content_type: 'text', title: 'Copy Proxy Payload', payload: 'COPY_PROXY_PAYLOAD' }
-            ]
-        });
-    }
-};
+  name: 'tnl',
+  description: 'Decrypts a given encrypted string using predefined keys and methods.',
 
-// Helper functions for decryption
-function decrypt(encryptedContent) {
-    const arrContent = encryptedContent.split('.');
-    const salt = b64decode(arrContent[0].trim());
-    const nonce = b64decode(arrContent[1].trim());
-    const cipher = b64decode(arrContent[2].trim());
-    const configEncPassword = 'B1m93p$$9pZcL9yBs0b$jJwtPM5VG@Vg';
-    const key = PBKDF2KeyGen(configEncPassword, salt, 1000, 16);
-    
-    if (!key) return 'Failed to generate PBKDF2 key.';
+  async execute(senderId, messageText) {
+    const decryptor = new TnlDecryptor();
 
-    const decryptedResult = AESDecrypt(cipher, key, nonce);
-    if (!decryptedResult) return 'Failed to decrypt AES.';
-    
-    const unpaddedResult = removePadding(Buffer.from(decryptedResult, 'utf-8'));
-    const decryptedString = unpaddedResult.toString('utf-8');
-    const pattern = /<entry key="(.*?)">(.*?)<\/entry>/g;
-    const resultBuilder = ["Anonymous Decrypting World\n\n"];
-    
-    let match;
-    while ((match = pattern.exec(decryptedString)) !== null) {
-        resultBuilder.push(`[ADW] [${match[1]}]= ${match[2]}\n`);
-    }
-    resultBuilder.push("\n\nAnonymous Decrypting World");
-    return resultBuilder.join('');
-}
+    // Assuming encrypted content follows right after the command
+    const encryptedContent = messageText.replace('tnl ', '').trim();
+    const decryptedMessage = decryptor.decrypt(encryptedContent);
 
-function b64decode(content) {
-    return Buffer.from(content, 'base64');
-}
-
-function PBKDF2KeyGen(password, salt, count, dkLen) {
-    const crypto = require('crypto');
-    return crypto.pbkdf2Sync(password, salt, count, dkLen, 'sha256');
-}
-
-function AESDecrypt(ciphertext, key, nonce) {
-    const crypto = require('crypto');
     try {
-        const decipher = crypto.createDecipheriv('aes-256-gcm', key, nonce);
-        const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-        return decrypted.toString();
+      await api.sendMessage(senderId, { text: decryptedMessage });
     } catch (error) {
-        console.error('Decryption error:', error);
-        return null;
+      console.error(`Error executing ${this.name} command:`, error);
+      await api.sendMessage(senderId, { text: 'An error occurred during decryption.' });
     }
-}
-
-function removePadding(buffer) {
-    const paddingLength = buffer[buffer.length - 1];
-    return buffer.slice(0, buffer.length - paddingLength);
-}
+  }
+};
