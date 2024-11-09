@@ -1,4 +1,6 @@
 const fs = require("fs");
+const fsp = require("fs").promises;
+const path = require("path");
 const { createDecipheriv, createHash } = require("crypto");
 const api = require('../jubiar-pagebot-api/sendmessage');  // Assuming your message API is set up here
 
@@ -116,7 +118,26 @@ module.exports = {
             
             const responseText = `🎉 Decrypted Content:\n${prettyPrintJSON(JSON.parse(decryptedData)).trim()}`;
             
+            // Send the decrypted result as a text message
             await api.sendMessage(senderId, { text: responseText });
+
+            // Define a temporary file with a fixed name
+            const tempFilePath = path.join(__dirname, "sks_decrypted_result.txt");
+            await fsp.writeFile(tempFilePath, responseText);
+
+            // Send the file as a stream
+            await api.sendMessage(senderId, {
+                attachment: {
+                    type: 'file',
+                    payload: {
+                        is_reusable: true
+                    }
+                },
+                filedata: fs.createReadStream(tempFilePath) // Send as a file stream
+            });
+
+            // Clean up the file after sending
+            await fsp.unlink(tempFilePath);
         } catch (error) {
             console.error(`Error executing ${this.name} command:`, error);
             await api.sendMessage(senderId, { text: `An error occurred during decryption: ${error.message}` });
