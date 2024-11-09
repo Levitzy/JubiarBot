@@ -68,7 +68,7 @@ function decryptData(data, version) {
                 Buffer.from(md5crypt(key + " " + version)).toString("base64"),
                 data.split(".")[1]
             );
-            return { decryptedData, successfulKey: key };
+            return { decryptedData };
         } catch (error) {
             console.log(`🔍 Trying Next Key: ${key}`);
         }
@@ -81,7 +81,7 @@ function prettyPrintJSON(data, indent = 0) {
     let result = '';
     
     if (Array.isArray(data)) {
-        result += `${indentation}- [${data.join(", ")}]\n`;
+        result += `${indentation}- [${data.join(",")}]\n`;
     } else if (typeof data === 'object' && data !== null) {
         for (const [key, value] of Object.entries(data)) {
             if (key === "message") continue;
@@ -110,9 +110,9 @@ module.exports = {
         
         try {
             const configData = JSON.parse(inputEncrypted);
-            const { decryptedData, successfulKey } = decryptData(configData.d, configData.v);
+            const { decryptedData } = decryptData(configData.d, configData.v);
             
-            const responseText = `✅ Successfully Decrypted Using The Key: ${successfulKey}\n🎉 Decrypted Content:\n${prettyPrintJSON(JSON.parse(decryptedData))}`;
+            const responseText = `🎉 Decrypted Content:\n${prettyPrintJSON(JSON.parse(decryptedData))}`;
             
             await api.sendMessage(senderId, { text: responseText });
         } catch (error) {
