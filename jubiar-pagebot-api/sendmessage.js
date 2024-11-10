@@ -9,7 +9,7 @@ const PAGE_ACCESS_TOKEN = config.PAGE_ACCESS_TOKEN;
 
 
 const sendTypingIndicator = async (recipientId, action) => {
-    const url = `https://graph.facebook.com/v11.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`;
+    const url = `https://graph.facebook.com/v21.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`;
     await axios.post(url, {
         recipient: { id: recipientId },
         sender_action: action
