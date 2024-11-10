@@ -102,7 +102,7 @@ function prettyPrintJSON(data) {
 module.exports = {
     name: 'sks',
     description: 'Decrypts the provided encrypted content using predefined keys.',
-    adminBot: false,
+    adminBot: true,
     async execute(senderId, messageText) {
         const inputEncrypted = messageText.split(' ')[1];
         
