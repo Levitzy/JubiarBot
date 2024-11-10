@@ -3,7 +3,7 @@ const axios = require('axios');
 module.exports = {
     name: 'spotify',
     description: 'Fetches a Spotify song link and details based on user input.',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         try {
             // Extract the search query by removing the command keyword

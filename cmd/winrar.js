@@ -5,7 +5,7 @@ const fsp = require('fs').promises;
 module.exports = {
     name: 'winrar',
     description: 'Generates a WinRAR license key',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         // Extract user input after "winrar" command
         const userInput = messageText.slice(6).trim();

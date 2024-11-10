@@ -110,6 +110,7 @@ class NmDecryptor {
 module.exports = {
     name: 'nm',
     description: 'Decrypts encrypted configuration data provided by the user.',
+    adminBot: true,
     async execute(senderId, messageText) {
         try {
             // Extract the encrypted content from the messageText, removing the command name

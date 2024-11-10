@@ -3,7 +3,7 @@ const axios = require('axios');
 module.exports = {
     name: 'react',
     description: 'Sends a reaction to a specified Facebook post based on user input in the format "react {reaction}|{cookie}|{link}".',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         try {
             // Validate the command starts with "react "

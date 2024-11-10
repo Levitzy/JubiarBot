@@ -4,7 +4,7 @@ const axios = require('axios'); // Make sure axios is installed for API requests
 module.exports = {
     name: 'ttdl', // Command keyword
     description: 'Downloads TikTok video without watermark and sends it as a video or a link if file size is too large',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         try {
             // Extract the TikTok URL from the user's message

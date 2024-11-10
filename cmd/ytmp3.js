@@ -3,7 +3,7 @@ const axios = require('axios');
 module.exports = {
     name: 'ytmp3',
     description: 'Converts YouTube video links to MP3 and sends the file to the user',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         const youtubeUrl = messageText.split(' ')[1]; // Assumes the command is called with "/ytmp3 <youtube_link>"
 

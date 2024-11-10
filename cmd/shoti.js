@@ -5,7 +5,7 @@ const path = require('path');
 module.exports = {
     name: 'shoti',
     description: 'Fetches a video using the Shoti API, downloads it, and sends it as a video attachment.',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         try {
             if (messageText.trim() === this.name) {

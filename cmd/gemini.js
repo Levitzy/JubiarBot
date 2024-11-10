@@ -3,7 +3,7 @@ const axios = require('axios');
 module.exports = {
     name: 'gemini',
     description: 'Fetches a response from the Gemini API based on the user prompt in the format "gemini {user_input}".',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         try {
             if (!messageText.startsWith('gemini ')) {

@@ -77,6 +77,7 @@ class TnlDecryptor {
 module.exports = {
   name: 'tnl',
   description: 'Decrypts a given encrypted string using predefined keys and methods.',
+  adminBot: true,
 
   async execute(senderId, messageText) {
     const decryptor = new TnlDecryptor();

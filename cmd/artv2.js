@@ -5,7 +5,7 @@ const fsp = require('fs').promises;
 module.exports = {
     name: 'artv2',
     description: 'Fetches an AI-generated image based on the prompt in the format "artv2 {prompt}".',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         try {
             if (!messageText.startsWith('artv2 ')) {

@@ -2,7 +2,7 @@
 module.exports = {
     name: 'hi',
     description: 'A greeting command to say hi to the user.',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         if (messageText.trim() === this.name) {
             const responseMessage = { text: `Hello! You used the ${this.name} command.` };

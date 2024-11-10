@@ -1,7 +1,7 @@
 module.exports = {
     name: 'help',
     description: 'See available commands',
-
+    adminBot: false,
     async execute(senderId, messageText, messageId) {
         try {
             // Message content to list available commands

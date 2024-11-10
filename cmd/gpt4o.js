@@ -3,7 +3,7 @@ const axios = require('axios');
 module.exports = {
     name: 'gpt4o',
     description: 'Fetches a response from the GPT-4O API based on the user prompt in the format "gpt4o {user_input}".',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         try {
             if (!messageText.startsWith('gpt4o ')) {

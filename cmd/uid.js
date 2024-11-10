@@ -3,7 +3,7 @@ const api = require('../jubiar-pagebot-api/sendmessage');
 module.exports = {
     name: 'uid', // Command keyword
     description: 'Returns the user\'s unique ID (senderId)',
-
+    adminBot: false,
     async execute(senderId) {
         try {
             // Send back the senderId

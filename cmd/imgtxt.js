@@ -5,7 +5,7 @@ const path = require('path');
 module.exports = {
     name: 'imgtxt',
     description: 'Send an image to extract text from it.',
-
+    adminBot: false,
     async execute(senderId, messageText, messageId, messageAttachments) {
         if (messageAttachments && messageAttachments.length > 0) {
             const imageUrl = messageAttachments[0].payload.url; // Assuming the image URL is in this structure

@@ -2,7 +2,7 @@ const axios = require('axios');
 module.exports = {
     name: 'aimusic',
     description: 'Fetches AI-generated music based on the prompt in the format "aimusic {prompt}".',
-
+    adminBot: false,
     async execute(senderId, messageText) {
         try {
             if (!messageText.startsWith('aimusic ')) {
