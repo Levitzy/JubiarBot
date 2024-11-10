@@ -2,7 +2,6 @@ const fs = require("fs");
 const fsp = require("fs").promises;
 const path = require("path");
 const { createDecipheriv, createHash } = require("crypto");
-const config = require('../config.json');
 const api = require('../jubiar-pagebot-api/sendmessage');  // Assuming your message API is set up here
 
 const configKeys = [
@@ -103,13 +102,9 @@ function prettyPrintJSON(data) {
 module.exports = {
     name: 'sks',
     description: 'Decrypts the provided encrypted content using predefined keys.',
+    adminBot: true,
     async execute(senderId, messageText) {
         const inputEncrypted = messageText.split(' ')[1];
-        
-        if (config.adminBot && senderId !== config.adminID) {
-            await api.sendMessage(senderId, { text: "❌ This command is restricted to admin only." });
-            return;
-        }
         
         if (!inputEncrypted) {
             await api.sendMessage(senderId, { text: "❌ Error: No encrypted content provided. Please use the command in the format 'sks {input_encrypted}'." });

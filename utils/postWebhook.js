@@ -1,3 +1,5 @@
+const adminCommands = require('../jubiar-pagebot-api/adminCheck'); // Import the new admin API
+
 module.exports = (app, commands) => {
     app.post('/webhook', async (req, res) => {
         const body = req.body;
@@ -9,15 +11,14 @@ module.exports = (app, commands) => {
 
                 if (webhookEvent.message && webhookEvent.message.text) {
                     const receivedText = webhookEvent.message.text.trim();
-                    const [commandName] = receivedText.split(' ');
+                    const [commandName, ...args] = receivedText.split(' ');
 
-                    // Check for a matching command by name and execute it
+                    // Check for a matching command by name and execute if permitted
                     const command = commands[commandName.toLowerCase()];
                     if (command) {
-                        await command.execute(senderId, receivedText);
+                        await adminCommands.executeCommandIfAdmin(senderId, command, args);
                     } else {
-                        // Optional: Log unknown command or notify the user
-                        await api.sendMessage(senderId, { text: "Unrecognized command. Type 'help' for available options." });
+                        await sendMessage(senderId, { text: "Unrecognized command. Type 'help' for available options." });
                     }
                 }
             });
